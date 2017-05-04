@@ -1,0 +1,33 @@
+# Java
+**/target/
+*.class
+
+# IntelliJ
+**/.idea/
+**/out/
+**/.idea_modules/
+*.iml
+
+# Eclipse
+**/.project
+*.classpath
+
+# General
+*.log
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+*.metadata
+*bin/
+*tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+*local.properties
+*.settings/
+*.loadpath
+*.recommenders
