@@ -30,8 +30,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>de.metanome.algorithms.myoddetector</groupId>
-      <artifactId>MyOdDetector</artifactId>
+      <groupId>de.metanome.algorithms.superucc</groupId>
+      <artifactId>SuperUCC</artifactId>
       <version>${metanome.version}</version>
     </dependency>
     

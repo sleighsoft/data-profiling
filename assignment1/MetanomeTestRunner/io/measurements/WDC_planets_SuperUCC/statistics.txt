@@ -1,0 +1,9 @@
+de.metanome.algorithms.superucc.SuperUCC
+
+Config:
+	algorithm: MYODDETECTOR
+	dataset: WDC_planets.csv
+
+Runtime: 3801
+
+Results: 1

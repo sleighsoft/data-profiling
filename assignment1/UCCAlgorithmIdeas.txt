@@ -1,0 +1,8 @@
++ Metadaten über die Spalten erheben
+  * #Unique
+  * #Distinct Groups
+  * (#Duplicates)
+
++ Pruning von Spalten die bereits Unique sind
+
++ Kandidaten nach "Uniqueness" sortieren 
