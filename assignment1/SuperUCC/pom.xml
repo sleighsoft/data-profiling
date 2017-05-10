@@ -8,7 +8,7 @@
   <version>${metanome.version}</version>
   <packaging>jar</packaging>
 
-  <name>MyOdDetector</name>
+  <name>SuperUCC</name>
 
   <properties>
     <metanome.version>1.1-SNAPSHOT</metanome.version>
