@@ -1,9 +1,9 @@
 de.metanome.algorithms.superucc.SuperUCC
 
 Config:
-	algorithm: MYODDETECTOR
+	algorithm: SuperUCC
 	dataset: WDC_planets.csv
 
-Runtime: 3801
+Runtime: 229
 
-Results: 1
+Results: 6

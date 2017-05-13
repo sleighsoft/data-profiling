@@ -12,6 +12,9 @@
 **/.project
 *.classpath
 
+# Metanome
+**/io/measurements/
+
 # General
 *.log
 *.jar

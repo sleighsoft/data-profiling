@@ -5,7 +5,7 @@ import java.io.File;
 public class Config {
 
 	public enum Algorithm {
-		MYODDETECTOR
+		SuperUCC
 	}
 	
 	public enum Dataset {
@@ -31,7 +31,7 @@ public class Config {
 	public boolean inputFileIgnoreLeadingWhiteSpace = true;
 	public boolean inputFileHasHeader;
 	public boolean inputFileSkipDifferingLines = true; // Skip lines that differ from the dataset's schema
-	
+
 	public String measurementsFolderPath = "io" + File.separator + "measurements" + File.separator;
 	
 	public String statisticsFileName = "statistics.txt";
@@ -69,7 +69,7 @@ public class Config {
 	}
 	
 	public Config() {
-		this(Config.Algorithm.MYODDETECTOR, Config.Dataset.PLANETS);
+		this(Config.Algorithm.SuperUCC, Config.Dataset.SYMBOLS);
 	}
 
 	public Config(Config.Algorithm algorithm, Config.Dataset dataset) {

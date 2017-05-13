@@ -1,1 +1,0 @@
-[WDC_planets.csv.Atmosphere, WDC_planets.csv.Atmosphere]~>[<,lex][WDC_planets.csv.Atmosphere, WDC_planets.csv.Atmosphere]

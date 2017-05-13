@@ -14,6 +14,7 @@ import de.metanome.algorithm_integration.input.RelationalInput;
 import de.metanome.algorithm_integration.input.RelationalInputGenerator;
 import de.metanome.algorithm_integration.results.OrderDependency;
 import de.metanome.algorithm_integration.results.Result;
+import de.metanome.algorithm_integration.results.UniqueColumnCombination;
 import de.metanome.algorithms.superucc.SuperUCC;
 import de.metanome.backend.input.file.DefaultFileInputGenerator;
 import de.metanome.backend.result_receiver.ResultCache;
@@ -23,61 +24,61 @@ import de.uni_potsdam.hpi.metanome_test_runner.utils.FileUtils;
 public class MetanomeMock {
 
     public static void execute(Config conf) {
-	try {
-	    RelationalInputGenerator inputGenerator = new DefaultFileInputGenerator(new ConfigurationSettingFileInput(
-		    conf.inputFolderPath + conf.inputDatasetName + conf.inputFileEnding, true, conf.inputFileSeparator,
-		    conf.inputFileQuotechar, conf.inputFileEscape, conf.inputFileStrictQuotes,
-		    conf.inputFileIgnoreLeadingWhiteSpace, conf.inputFileSkipLines, conf.inputFileHasHeader,
-		    conf.inputFileSkipDifferingLines, conf.inputFileNullString));
+        try {
+            RelationalInputGenerator inputGenerator = new DefaultFileInputGenerator(new ConfigurationSettingFileInput(
+                    conf.inputFolderPath + conf.inputDatasetName + conf.inputFileEnding, true, conf.inputFileSeparator,
+                    conf.inputFileQuotechar, conf.inputFileEscape, conf.inputFileStrictQuotes,
+                    conf.inputFileIgnoreLeadingWhiteSpace, conf.inputFileSkipLines, conf.inputFileHasHeader,
+                    conf.inputFileSkipDifferingLines, conf.inputFileNullString));
 
-	    ResultCache resultReceiver = new ResultCache("MetanomeMock", getAcceptedColumns(inputGenerator));
+            ResultCache resultReceiver = new ResultCache("MetanomeMock", getAcceptedColumns(inputGenerator));
 
-	    //TODO(julian)
-	    SuperUCC algorithm = new SuperUCC();
-	    algorithm.setRelationalInputConfigurationValue(SuperUCC.Identifier.INPUT_GENERATOR.name(), inputGenerator);
-	    algorithm.setResultReceiver(resultReceiver);
+            //TODO(julian)
+            SuperUCC algorithm = new SuperUCC();
+            algorithm.setRelationalInputConfigurationValue(SuperUCC.Identifier.INPUT_GENERATOR.name(), inputGenerator);
+            algorithm.setResultReceiver(resultReceiver);
 
-	    long runtime = System.currentTimeMillis();
-	    algorithm.execute();
-	    runtime = System.currentTimeMillis() - runtime;
+            long runtime = System.currentTimeMillis();
+            algorithm.execute();
+            runtime = System.currentTimeMillis() - runtime;
 
-	    writeResults(conf, resultReceiver, algorithm, runtime);
-	} catch (AlgorithmExecutionException e) {
-	    e.printStackTrace();
-	} catch (IOException e) {
-	    e.printStackTrace();
-	}
+            writeResults(conf, resultReceiver, algorithm, runtime);
+        } catch (AlgorithmExecutionException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static List<ColumnIdentifier> getAcceptedColumns(RelationalInputGenerator relationalInputGenerator)
-	    throws InputGenerationException, AlgorithmConfigurationException {
-	List<ColumnIdentifier> acceptedColumns = new ArrayList<>();
-	RelationalInput relationalInput = relationalInputGenerator.generateNewCopy();
-	String tableName = relationalInput.relationName();
-	for (String columnName : relationalInput.columnNames())
-	    acceptedColumns.add(new ColumnIdentifier(tableName, columnName));
-	return acceptedColumns;
+            throws InputGenerationException, AlgorithmConfigurationException {
+        List<ColumnIdentifier> acceptedColumns = new ArrayList<>();
+        RelationalInput relationalInput = relationalInputGenerator.generateNewCopy();
+        String tableName = relationalInput.relationName();
+        for (String columnName : relationalInput.columnNames())
+            acceptedColumns.add(new ColumnIdentifier(tableName, columnName));
+        return acceptedColumns;
     }
 
     private static void writeResults(Config conf, ResultCache resultReceiver, Object algorithm, long runtime)
-	    throws IOException {
-	if (conf.writeResults) {
-	    String outputPath = conf.measurementsFolderPath + conf.inputDatasetName + "_"
-		    + algorithm.getClass().getSimpleName() + File.separator;
-	    List<Result> results = resultReceiver.fetchNewResults();
+            throws IOException {
+        if (conf.writeResults) {
+            String outputPath = conf.measurementsFolderPath + conf.inputDatasetName + "_"
+                    + algorithm.getClass().getSimpleName() + File.separator;
+            List<Result> results = resultReceiver.fetchNewResults();
 
-	    FileUtils.writeToFile(algorithm.toString() + "\r\n\r\n" + conf.toString() + "\r\n\r\n" + "Runtime: "
-		    + runtime + "\r\n\r\n" + "Results: " + results.size(), outputPath + conf.statisticsFileName);
-	    FileUtils.writeToFile(format(results), outputPath + conf.resultFileName);
-	}
+            FileUtils.writeToFile(algorithm.toString() + "\r\n\r\n" + conf.toString() + "\r\n\r\n" + "Runtime: "
+                    + runtime + "\r\n\r\n" + "Results: " + results.size(), outputPath + conf.statisticsFileName);
+            FileUtils.writeToFile(format(results), outputPath + conf.resultFileName);
+        }
     }
 
     private static String format(List<Result> results) {
-	StringBuilder builder = new StringBuilder();
-	for (Result result : results) {
-	    OrderDependency od = (OrderDependency) result;
-	    builder.append(od.toString() + "\r\n");
-	}
-	return builder.toString();
+        StringBuilder builder = new StringBuilder();
+        for (Result result : results) {
+            UniqueColumnCombination ucc = (UniqueColumnCombination) result;
+            builder.append(ucc.toString() + "\r\n");
+        }
+        return builder.toString();
     }
 }
