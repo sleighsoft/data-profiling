@@ -30,7 +30,7 @@ public class SuperUCC extends SuperUCCAlgorithm // Separating the algorithm impl
 
   @Override
   public String getDescription() {
-    return "An Algorithm to detect Unique Column Combinations"; // A string briefly describing what this algorithm does
+    return "SuperUCC - An Algorithm to detect Unique Column Combinations"; // A string briefly describing what this algorithm does
   }
 
   //
