@@ -33,7 +33,6 @@ public class MetanomeMock {
 
             ResultCache resultReceiver = new ResultCache("MetanomeMock", getAcceptedColumns(inputGenerator));
 
-            //TODO(julian)
             SuperUCC algorithm = new SuperUCC();
             algorithm.setRelationalInputConfigurationValue(SuperUCC.Identifier.INPUT_GENERATOR.name(), inputGenerator);
             algorithm.setResultReceiver(resultReceiver);

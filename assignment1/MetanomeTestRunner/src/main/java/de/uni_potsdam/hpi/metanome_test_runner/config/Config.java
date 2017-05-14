@@ -9,7 +9,7 @@ public class Config {
 	}
 	
 	public enum Dataset {
-		PLANETS, SYMBOLS, SCIENCE, SATELLITES, GAME, ASTRONOMICAL, ABALONE, ADULT, BALANCE, BREAST, BRIDGES, CHESS, ECHODIAGRAM, FLIGHT, HEPATITIS, HORSE, IRIS, LETTER, NURSERY, PETS, NCVOTER_1K, UNIPROD_1K
+		PLANETS, SYMBOLS, SCIENCE, SATELLITES, GAME, ASTRONOMICAL, ABALONE, ADULT, BALANCE, BREAST, BRIDGES, CHESS, ECHODIAGRAM, FLIGHT, HEPATITIS, HORSE, IRIS, LETTER, NURSERY, PETS, NCVOTER_1K, UNIPROD_1K, UCC11, UCC011, UCC101, UCC111, UCCALL, UCCNO, UCCTWO, UCCONE
 	}
 	
 	public Config.Algorithm algorithm;
@@ -196,6 +196,54 @@ public class Config {
 				this.inputDatasetName = "uniprot_1001r_223c";
 				this.inputFileSeparator = ',';
 				this.inputFileHasHeader = true;
+				break;
+			case UCC11:
+				this.inputDatasetName = "11_ucc";
+				this.inputFileSeparator = ',';
+				this.inputFileHasHeader = true;
+				this.inputFolderPath = "data" + File.separator + "test" + File.separator;
+				break;
+			case UCC011:
+				this.inputDatasetName = "011_ucc";
+				this.inputFileSeparator = ',';
+				this.inputFileHasHeader = true;
+				this.inputFolderPath = "data" + File.separator + "test" + File.separator;
+				break;
+			case UCC101:
+				this.inputDatasetName = "101_ucc";
+				this.inputFileSeparator = ',';
+				this.inputFileHasHeader = true;
+				this.inputFolderPath = "data" + File.separator + "test" + File.separator;
+				break;
+			case UCC111:
+				this.inputDatasetName = "111_ucc";
+				this.inputFileSeparator = ',';
+				this.inputFileHasHeader = true;
+				this.inputFolderPath = "data" + File.separator + "test" + File.separator;
+				break;
+			case UCCALL:
+				this.inputDatasetName = "all_ucc";
+				this.inputFileSeparator = ',';
+				this.inputFileHasHeader = true;
+				this.inputFolderPath = "data" + File.separator + "test" + File.separator;
+				break;
+			case UCCNO:
+				this.inputDatasetName = "no_ucc";
+				this.inputFileSeparator = ',';
+				this.inputFileHasHeader = true;
+				this.inputFolderPath = "data" + File.separator + "test" + File.separator;
+				break;
+      case UCCONE:
+				this.inputDatasetName = "one_ucc";
+				this.inputFileSeparator = ',';
+				this.inputFileHasHeader = true;
+				this.inputFolderPath = "data" + File.separator + "test" + File.separator;
+				break;
+			case UCCTWO:
+				this.inputDatasetName = "two_ucc";
+				this.inputFileSeparator = ',';
+				this.inputFileHasHeader = true;
+				this.inputFolderPath = "data" + File.separator + "test" + File.separator;
 				break;
 		}
 	}
