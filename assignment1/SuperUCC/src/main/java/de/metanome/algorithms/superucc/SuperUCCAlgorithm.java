@@ -15,10 +15,7 @@ import de.metanome.algorithm_integration.result_receiver.UniqueColumnCombination
 import de.metanome.algorithm_integration.results.UniqueColumnCombination;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class SuperUCCAlgorithm {
 
@@ -29,7 +26,12 @@ public class SuperUCCAlgorithm {
   protected List<String> columnNames;
 
   protected List<Candidate> primitives = new ArrayList<>();
-  protected List<Candidate> candidates = new ArrayList<>();
+  protected PriorityQueue<Candidate> candidates = new PriorityQueue<>(100, new Comparator<Candidate>() {
+    @Override
+    public int compare(Candidate o1, Candidate o2) {
+      return Long.compare(o2.getBoostedScore(), o1.getBoostedScore());
+    }
+  });
   protected List<Candidate> uniques = new ArrayList<>();
 
   protected long numberOfTuples;
@@ -68,8 +70,6 @@ public class SuperUCCAlgorithm {
     primitives.removeAll(uniquePrimitives);
     uniques.addAll(uniquePrimitives);
 
-    sortCandidateList(primitives);
-
     // TODO: Catch special case if only one primitive is in the list
     candidates.addAll(primitives);
     mainLoop();
@@ -89,32 +89,19 @@ public class SuperUCCAlgorithm {
         c1.getBitSet().union(c2.getBitSet()));
   }
 
-  protected void sortCandidateList(List<Candidate> candidates) {
-    Collections.sort(candidates, new Comparator<Candidate>() {
-      @Override
-      public int compare(Candidate o1, Candidate o2) {
-        return Long.compare(o2.getBoostedScore(), o1.getBoostedScore());
-      }
-    });
-  }
-
   protected void mainLoop() {
     while (!candidates.isEmpty()) {
-      sortCandidateList(candidates);
-
-      Candidate bestCandidate = candidates.get(0);
-      candidates.remove(0);
+      Candidate bestCandidate = candidates.remove();
       // TODO: Refactor tests/candidate PLI building to be lazy
       if (bestCandidate.getPli().isUnique()) {
         addUnique(bestCandidate);
         // TODO: boost subsets
       } else {
         for (Candidate primitive : primitives) {
-          if (bestCandidate.getBitSet().containsSubset(primitive.getBitSet()))
+          if (bestCandidate.getBitSet().containsSubset(primitive.getBitSet())) {
             continue;
-
+          }
           ColumnCombinationBitset newCandidateBitSet = bestCandidate.getBitSet().union(primitive.getBitSet());
-
           // test whether we already have this candidate
           boolean found = false;
           for (Candidate c : candidates) {
@@ -126,7 +113,6 @@ public class SuperUCCAlgorithm {
           if (found) {
             continue;
           }
-
           candidates.add(createCandidate(bestCandidate, primitive));
         }
 
