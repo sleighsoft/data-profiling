@@ -3,11 +3,6 @@ package de.metanome.algorithms.superucc;
 import de.metanome.algorithm_helper.data_structures.ColumnCombinationBitset;
 import de.metanome.algorithm_helper.data_structures.PositionListIndex;
 
-import javax.swing.text.Position;
-
-/**
- * Created by Julian.Niedermeier on 13/05/2017.
- */
 public class Candidate {
   private long score;
   private double boost;

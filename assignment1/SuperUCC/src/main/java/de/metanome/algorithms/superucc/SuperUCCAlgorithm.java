@@ -56,7 +56,7 @@ public class SuperUCCAlgorithm {
       long distinct = numberOfTuples - sum + pli.getClusters().size();
       // Filter out already unique primitives
       Candidate newCandidate = new Candidate(distinct, 1, pli, column_index);
-      if(pli.isUnique()) {
+      if (pli.isUnique()) {
         uniques.add(newCandidate);
       } else {
         primitives.add(newCandidate);
@@ -65,7 +65,7 @@ public class SuperUCCAlgorithm {
       column_index++;
     }
     // Early out in case of all primitives being unique
-    if(primitives.size() > 0) {
+    if (primitives.size() > 0) {
       candidates.addAll(primitives);
       mainLoop();
     }
@@ -73,6 +73,16 @@ public class SuperUCCAlgorithm {
     this.emit(results);
   }
 
+  /**
+   * Combines to candidates into a new one. Creates a new score for the composite candidate.
+   *
+   * @param c1 Candidate
+   * @param c2 Candidate
+   * @param bitSet The new bitset for the two candidates. Normally we can calculate the bitset from,
+   *               the two candidates, but we want to use the bitset for a 'already seen test' without
+   *               already computing the new PLI.
+   * @return A new {@link Candidate}
+   */
   protected Candidate combineCandidates(Candidate c1, Candidate c2, ColumnCombinationBitset bitSet) {
     return new Candidate(c1.getScore() * c2.getScore(),
         1,
@@ -81,13 +91,12 @@ public class SuperUCCAlgorithm {
   }
 
   /**
-   * Iterates of all candidates and finds uniques.
+   * Iterates over the candidates list, finds uniques and adds them to the uniques list.
    */
   protected void mainLoop() {
     while (!candidates.isEmpty()) {
       // Get highest ranked candidate
       Candidate bestCandidate = candidates.remove();
-      // TODO: Refactor tests/candidate PLI building to be lazy
       if (bestCandidate.getPli().isUnique()) {
         addUnique(bestCandidate);
         // TODO: boost subsets
@@ -98,8 +107,9 @@ public class SuperUCCAlgorithm {
           if (bestCandidate.getBitSet().containsSubset(primitive.getBitSet())) {
             continue;
           }
+          // Add only completely new candidates
           ColumnCombinationBitset newCandidateBitSet = bestCandidate.getBitSet().union(primitive.getBitSet());
-          if(alreadySeenColumnCombinations.contains(newCandidateBitSet)) {
+          if (alreadySeenColumnCombinations.contains(newCandidateBitSet)) {
             continue;
           }
           Candidate newCandidate = combineCandidates(bestCandidate, primitive, newCandidateBitSet);
@@ -115,29 +125,38 @@ public class SuperUCCAlgorithm {
         }
         candidates.removeAll(prune);
       }
-      // if ! unique : Update Scores/Discover new candidates, prune candidates
-      // else: update uniques and prune uniques, boost subsets
     }
   }
 
+  /**
+   * Adds a new unique to the uniques list if it is the current minimal unique.
+   * Prunes candidates from the candidates and unique list that are no longer needed.
+   *
+   * @param unique The {@link Candidate} to add to the uniques list.
+   */
   protected void addUnique(Candidate unique) {
     ArrayList<Candidate> prune = new ArrayList<>();
-    // prune unique list
+    // Prune uniques
     for (Candidate c : uniques) {
-      if (unique.getBitSet().containsSubset(c.getBitSet())) return;
+      // Do not add if we already have a smaller ucc
+      if (unique.getBitSet().containsSubset(c.getBitSet())) {
+        return;
+      }
+      // Remove uniques that are larger than the new one
       if (c.getBitSet().containsSubset(unique.getBitSet())) {
         prune.add(c);
       }
     }
     uniques.removeAll(prune);
     prune.clear();
-    // prune candidate list
+    // Prune candidates
     for (Candidate c : candidates) {
+      // Remove candidates that are smaller than the new unique
       if (c.getBitSet().containsSubset(unique.getBitSet())) {
         prune.add(c);
       }
     }
-    // add
+    candidates.removeAll(prune);
     uniques.add(unique);
   }
 
@@ -145,17 +164,6 @@ public class SuperUCCAlgorithm {
     RelationalInput input = this.inputGenerator.generateNewCopy();
     this.relationName = input.relationName();
     this.columnNames = input.columnNames();
-  }
-
-  protected List<List<String>> readInput()
-      throws InputGenerationException, AlgorithmConfigurationException, InputIterationException {
-    // TODO: This is probably overly eager, tanking the runtime of the algorithm (If IO and not cache bound)
-    List<List<String>> records = new ArrayList<>();
-    // TODO: GenerateNewCopy reads data from disk again
-    RelationalInput input = this.inputGenerator.generateNewCopy();
-    while (input.hasNext())
-      records.add(input.next());
-    return records;
   }
 
   protected PLIBuilder createPLIBuilder() throws InputGenerationException, AlgorithmConfigurationException, InputIterationException {
