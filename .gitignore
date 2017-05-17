@@ -34,3 +34,6 @@
 *.settings/
 *.loadpath
 *.recommenders
+
+# Algorithm docus
+SuperUCC_docu.pdf

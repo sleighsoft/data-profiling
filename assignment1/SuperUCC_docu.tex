@@ -1,0 +1,34 @@
+\documentclass{scrartcl}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{enumerate}
+\usepackage[ruled, vlined, linesnumbered]{algorithm2e}
+
+
+\setlength{\parindent}{0mm}
+
+\begin{document}
+\pagestyle{plain}
+
+\section*{SuperUCC}
+
+\section{Konzept}
+SuperUCC ist ein von uns entwickelter Algorithmus für dessen Entwicklung wir uns nicht an einem konktreten bereits existierenden Algorithmus orientiert haben. Der Algorithmus findet, der Aufgabe entsprechend, die minimalen Spaltenkombinationen, welche als Schlüssel für das gegebene Datenset fungieren können.
+\subsection{Genereller Ablauf}
+Unser Algorithmus baut Kandidaten an Spaltenkombinationen auf und bewertet diese anhand ihrer Eignung als Schlüssel. Dies erfolgt durch erfassen der Anzahl Duplikate für den aktuellen Kandidaten(score für jeden Kandidaten). Der beste Kandidat(niedrigster Score) wird anschließend, soweit noch Duplikate für die Spaltenkombination vorhanden sind, mit allen zusätzlichen Einzelspalten kombiniert. So sind dann neue Kandidaten entstanden. \\
+Beispielsweise könnte ein Kandidat AB die Kandidaten ABC, ABD, ABE erzeugen.\\
+Sollte eine Kombination als duplikatfrei identifiziert werden, so wird diese Kombination in die $unique$-Liste eingefügt. Zudem erzeugen wir im weiteren Verlauf keine Obermengen dieser Spaltenkombination.\\
+Auch im Fall, dass die Kombination Duplikate enthalten sollte, nutzen wir diese Erkenntnis, indem aus der Kandidatenliste alle Untermengen dieser Spaltenkombination entfernt werden, da diese offensichtlich ebenfalls nicht das Kriterium der Uniqueness erfüllen können.
+\subsection{Datenstrukturen}
+
+\subsection{Vor- und Nachteile des Algorithmus}
+
+\section{Performance}
+\subsection{Testergebnisse}
+\subsection{NULL-Semantik}
+\end{document}
