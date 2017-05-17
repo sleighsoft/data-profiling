@@ -26,6 +26,7 @@ public class SuperUCCAlgorithm {
   protected List<String> columnNames;
 
   protected List<Candidate> primitives = new ArrayList<>();
+  // TODO: initialCapacity can be calculated based on input size
   protected PriorityQueue<Candidate> candidates = new PriorityQueue<>(100, new Comparator<Candidate>() {
     @Override
     public int compare(Candidate o1, Candidate o2) {
@@ -33,87 +34,77 @@ public class SuperUCCAlgorithm {
     }
   });
   protected List<Candidate> uniques = new ArrayList<>();
+  protected HashSet<ColumnCombinationBitset> alreadySeenColumnCombinations = new HashSet<>();
 
   protected long numberOfTuples;
 
   public void execute() throws AlgorithmExecutionException {
-
-    ////////////////////////////////////////////
-    // THE DISCOVERY ALGORITHM LIVES HERE :-) //
-    ////////////////////////////////////////////
-    // Example: Initialize
     this.initialize();
-    // Build PLI
+    // Build PLI for single columns
     PLIBuilder pliBuilder = this.createPLIBuilder();
     List<PositionListIndex> pliList = pliBuilder.getPLIList();
     primitives = new ArrayList<>();
     numberOfTuples = pliBuilder.getNumberOfTuples();
-    int index = 0;
+    int column_index = 0;
+    // Build primitives (single column candidates)
     for (PositionListIndex pli : pliList) {
       long sum = 0;
       for (LongArrayList l : pli.getClusters()) {
         sum += l.size();
       }
+      // Initial primitive candidate score is #DistinctValuesInColumn
       long distinct = numberOfTuples - sum + pli.getClusters().size();
-      primitives.add(new Candidate(distinct, 1, pli, index));
-      index++;
-    }
-
-    ArrayList<Candidate> uniquePrimitives = new ArrayList<>();
-    // Find unique one element candidates
-    for (Candidate candidate : primitives) {
-      if (candidate.getScore() == numberOfTuples) {
-        uniquePrimitives.add(candidate);
+      // Filter out already unique primitives
+      Candidate newCandidate = new Candidate(distinct, 1, pli, column_index);
+      if(pli.isUnique()) {
+        uniques.add(newCandidate);
+      } else {
+        primitives.add(newCandidate);
       }
+      alreadySeenColumnCombinations.add(newCandidate.getBitSet());
+      column_index++;
     }
-
-    primitives.removeAll(uniquePrimitives);
-    uniques.addAll(uniquePrimitives);
-
-    // TODO: Catch special case if only one primitive is in the list
-    candidates.addAll(primitives);
-    mainLoop();
-
-    // Example: Generate some results (usually, the algorithm should really calculate them on the data)
+    // Early out in case of all primitives being unique
+    if(primitives.size() > 0) {
+      candidates.addAll(primitives);
+      mainLoop();
+    }
     List<UniqueColumnCombination> results = this.generateResults();
-    // Example: To test if the algorithm outputs results
     this.emit(results);
-    /////////////////////////////////////////////
-
   }
 
-  protected Candidate createCandidate(Candidate c1, Candidate c2) {
+  protected Candidate combineCandidates(Candidate c1, Candidate c2, ColumnCombinationBitset bitSet) {
     return new Candidate(c1.getScore() * c2.getScore(),
         1,
         c1.getPli().intersect(c2.getPli()),
-        c1.getBitSet().union(c2.getBitSet()));
+        bitSet);
   }
 
+  /**
+   * Iterates of all candidates and finds uniques.
+   */
   protected void mainLoop() {
     while (!candidates.isEmpty()) {
+      // Get highest ranked candidate
       Candidate bestCandidate = candidates.remove();
       // TODO: Refactor tests/candidate PLI building to be lazy
       if (bestCandidate.getPli().isUnique()) {
         addUnique(bestCandidate);
         // TODO: boost subsets
       } else {
+        // Build new composite candidates with primitives and bestCandidate
         for (Candidate primitive : primitives) {
+          // Combine only with new columns
           if (bestCandidate.getBitSet().containsSubset(primitive.getBitSet())) {
             continue;
           }
           ColumnCombinationBitset newCandidateBitSet = bestCandidate.getBitSet().union(primitive.getBitSet());
-          // test whether we already have this candidate
-          boolean found = false;
-          for (Candidate c : candidates) {
-            if (c.getBitSet().equals(newCandidateBitSet)) {
-              found = true;
-              break;
-            }
-          }
-          if (found) {
+          if(alreadySeenColumnCombinations.contains(newCandidateBitSet)) {
             continue;
           }
-          candidates.add(createCandidate(bestCandidate, primitive));
+          Candidate newCandidate = combineCandidates(bestCandidate, primitive, newCandidateBitSet);
+          candidates.add(newCandidate);
+          alreadySeenColumnCombinations.add(newCandidate.getBitSet());
         }
 
         ArrayList<Candidate> prune = new ArrayList<>();
@@ -173,10 +164,6 @@ public class SuperUCCAlgorithm {
     return pliBuilder;
   }
 
-  protected void createLattice() {
-
-  }
-
   protected void print(List<List<String>> records) {
 
     // Print schema
@@ -196,14 +183,11 @@ public class SuperUCCAlgorithm {
 
   protected List<UniqueColumnCombination> generateResults() {
     List<UniqueColumnCombination> results = new ArrayList<>();
-
-
     for (Candidate unique : uniques) {
       ColumnCombinationBitset bitset = unique.getBitSet();
       UniqueColumnCombination ucc = new UniqueColumnCombination(bitset.createColumnCombination(relationName, columnNames));
       results.add(ucc);
     }
-
     return results;
   }
 

@@ -108,4 +108,16 @@ public class AlgorithmTest {
     assertEquals("C2", columns[0].getColumnIdentifier());
   }
 
+  @Test
+  public void testOneColumnOneUCC() {
+    Config conf = new Config(Config.Algorithm.SuperUCC, Config.Dataset.UCCONECOLUMNONE);
+    ResultCache result = MetanomeMock.executeWithResult(conf);
+    List<Result> results = result.fetchNewResults();
+    assertEquals(results.size(), 1);
+    UniqueColumnCombination uccs = (UniqueColumnCombination) results.get(0);
+    ColumnIdentifier[] columns = uccs.getColumnCombination().getColumnIdentifiers().toArray(new ColumnIdentifier[]{});
+    assertEquals(columns.length, 1);
+    assertEquals("C1", columns[0].getColumnIdentifier());
+  }
+
 }

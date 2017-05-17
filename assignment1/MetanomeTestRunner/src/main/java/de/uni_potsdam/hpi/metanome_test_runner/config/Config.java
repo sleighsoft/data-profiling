@@ -9,7 +9,7 @@ public class Config {
   }
 
   public enum Dataset {
-    PLANETS, SYMBOLS, SCIENCE, SATELLITES, GAME, ASTRONOMICAL, ABALONE, ADULT, BALANCE, BREAST, BRIDGES, CHESS, ECHODIAGRAM, FLIGHT, HEPATITIS, HORSE, IRIS, LETTER, NURSERY, PETS, NCVOTER_1K, UNIPROD_1K, UCC11, UCC011, UCC101, UCC111, UCCALL, UCCNO, UCCTWO, UCCONE
+    PLANETS, SYMBOLS, SCIENCE, SATELLITES, GAME, ASTRONOMICAL, ABALONE, ADULT, BALANCE, BREAST, BRIDGES, CHESS, ECHODIAGRAM, FLIGHT, HEPATITIS, HORSE, IRIS, LETTER, NURSERY, PETS, NCVOTER_1K, UNIPROD_1K, UCC11, UCC011, UCC101, UCC111, UCCALL, UCCNO, UCCTWO, UCCONE, UCCONECOLUMNONE
   }
 
   public Config.Algorithm algorithm;
@@ -241,6 +241,12 @@ public class Config {
         break;
       case UCCTWO:
         this.inputDatasetName = "two_ucc";
+        this.inputFileSeparator = ',';
+        this.inputFileHasHeader = true;
+        this.inputFolderPath = "data" + File.separator + "test" + File.separator;
+        break;
+      case UCCONECOLUMNONE:
+        this.inputDatasetName = "1_column_1_ucc";
         this.inputFileSeparator = ',';
         this.inputFileHasHeader = true;
         this.inputFolderPath = "data" + File.separator + "test" + File.separator;

@@ -80,7 +80,7 @@
                     <archive>
                         <manifestEntries>
                             <Algorithm-Bootstrap-Class>
-                                de.metanome.algorithms.SuperUCC.SuperUCC
+                                de.metanome.algorithms.superucc.SuperUCC
                             </Algorithm-Bootstrap-Class>
                         </manifestEntries>
                     </archive>
