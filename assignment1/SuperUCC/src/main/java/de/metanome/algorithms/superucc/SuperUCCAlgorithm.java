@@ -128,6 +128,20 @@ public class SuperUCCAlgorithm {
     }
   }
 
+  protected void addSubsets(Candidate c) {
+    List<ColumnCombinationBitset> allSubsets = c.getBitSet().getNSubsetColumnCombinations(c.getBitSet().size() - 1);
+    ListIterator<ColumnCombinationBitset> it = allSubsets.listIterator();
+    while(it.hasNext()) {
+      ColumnCombinationBitset next = it.next();
+      if (alreadySeenColumnCombinations.contains(next)) {
+        it.remove();
+      } else {
+        new Candidate(next)
+      }
+    }
+
+  }
+
   /**
    * Adds a new unique to the uniques list if it is the current minimal unique.
    * Prunes candidates from the candidates and unique list that are no longer needed.
