@@ -130,6 +130,22 @@ public class AlgorithmTest {
     ColumnIdentifier[] columns = uccs.getColumnCombination().getColumnIdentifiers().toArray(new ColumnIdentifier[]{});
     assertEquals(2,columns.length);
     assertEquals("C2", columns[0].getColumnIdentifier());
-    assertEquals("C3", columns[0].getColumnIdentifier());
+    assertEquals("C3", columns[1].getColumnIdentifier());
+  }
+
+  @Test
+  public void test20Columns() {
+    Config conf = new Config(Config.Algorithm.SuperUCC, Config.Dataset.COLUMNS20);
+    ResultCache result = MetanomeMock.executeWithResult(conf);
+    List<Result> results = result.fetchNewResults();
+    System.out.println();
+  }
+
+  @Test
+  public void testNullValues() {
+    Config conf = new Config(Config.Algorithm.SuperUCC, Config.Dataset.NULLVALUES);
+    ResultCache result = MetanomeMock.executeWithResult(conf);
+    List<Result> results = result.fetchNewResults();
+    System.out.println();
   }
 }
