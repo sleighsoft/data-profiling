@@ -3,11 +3,15 @@ package de.metanome.algorithms.superucc;
 import de.metanome.algorithm_helper.data_structures.ColumnCombinationBitset;
 import de.metanome.algorithm_helper.data_structures.PositionListIndex;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class Candidate {
   private long score;
   private double boost;
   private ColumnCombinationBitset bitSet;
   private PositionListIndex pli;
+  private List<Candidate> compositeCandidates;
 
   public Candidate(long score, double boost, PositionListIndex pli, int... columns) {
     this.score = score;
@@ -21,6 +25,21 @@ public class Candidate {
     this.boost = boost;
     this.pli = pli;
     this.bitSet = bitSet;
+  }
+
+  public Candidate(long score, double boost, ColumnCombinationBitset bitSet, Candidate... compositeCandidates) {
+    this(score, boost, null, bitSet);
+    this.compositeCandidates = Arrays.asList(compositeCandidates);
+  }
+
+  public void combineCandidates() {
+    if (compositeCandidates != null) {
+      PositionListIndex pli = compositeCandidates.get(0).getPli();
+      for (Candidate c : compositeCandidates.subList(1, compositeCandidates.size())) {
+        pli = pli.intersect(c.getPli());
+      }
+      this.pli = pli;
+    }
   }
 
   public long getBoostedScore() {

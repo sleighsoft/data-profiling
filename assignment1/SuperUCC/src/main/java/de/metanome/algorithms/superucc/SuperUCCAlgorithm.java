@@ -25,7 +25,8 @@ public class SuperUCCAlgorithm {
   protected String relationName;
   protected List<String> columnNames;
 
-  protected List<Candidate> primitives = new ArrayList<>();
+  protected ArrayList<Candidate> primitives = new ArrayList<>();
+  protected ArrayList<Candidate> originalPrimitives = new ArrayList<>();
   // TODO: initialCapacity can be calculated based on input size
   protected PriorityQueue<Candidate> candidates = new PriorityQueue<>(100, new Comparator<Candidate>() {
     @Override
@@ -34,7 +35,9 @@ public class SuperUCCAlgorithm {
     }
   });
   protected List<Candidate> uniques = new ArrayList<>();
-  protected HashSet<ColumnCombinationBitset> alreadySeenColumnCombinations = new HashSet<>();
+  protected List<ColumnCombinationBitset> alreadySeenColumnCombinations = new ArrayList<>();
+
+  protected HashSet<ColumnCombinationBitset> maximumNonUniques = new HashSet<>();
 
   protected long numberOfTuples;
 
@@ -43,7 +46,6 @@ public class SuperUCCAlgorithm {
     // Build PLI for single columns
     PLIBuilder pliBuilder = this.createPLIBuilder();
     List<PositionListIndex> pliList = pliBuilder.getPLIList();
-    primitives = new ArrayList<>();
     numberOfTuples = pliBuilder.getNumberOfTuples();
     int column_index = 0;
     // Build primitives (single column candidates)
@@ -61,6 +63,7 @@ public class SuperUCCAlgorithm {
       } else {
         primitives.add(newCandidate);
       }
+      originalPrimitives.add(newCandidate);
       alreadySeenColumnCombinations.add(newCandidate.getBitSet());
       column_index++;
     }
@@ -76,32 +79,55 @@ public class SuperUCCAlgorithm {
   /**
    * Combines to candidates into a new one. Creates a new score for the composite candidate.
    *
-   * @param c1 Candidate
-   * @param c2 Candidate
+   * @param c1     Candidate
+   * @param c2     Candidate
    * @param bitSet The new bitset for the two candidates. Normally we can calculate the bitset from,
    *               the two candidates, but we want to use the bitset for a 'already seen test' without
    *               already computing the new PLI.
    * @return A new {@link Candidate}
    */
   protected Candidate combineCandidates(Candidate c1, Candidate c2, ColumnCombinationBitset bitSet) {
+    // TODO add list of relevant primitives to candidate
+    List<Integer> setBits = bitSet.getSetBits();
+    Candidate[] combinationPrimitives = new Candidate[setBits.size()];
+    int index = 0;
+    for (Integer i : setBits) {
+      combinationPrimitives[index] = originalPrimitives.get(i);
+      index++;
+    }
     return new Candidate(c1.getScore() * c2.getScore(),
         1,
-        c1.getPli().intersect(c2.getPli()),
-        bitSet);
+        bitSet,
+        combinationPrimitives);
   }
 
   /**
    * Iterates over the candidates list, finds uniques and adds them to the uniques list.
    */
   protected void mainLoop() {
+    Candidate previousCandidate = null;
     while (!candidates.isEmpty()) {
       // Get highest ranked candidate
       Candidate bestCandidate = candidates.remove();
-      if (bestCandidate.getPli().isUnique()) {
+      boolean hasSuperSet = false;
+      for (ColumnCombinationBitset bitset : maximumNonUniques) {
+        if (bestCandidate.getBitSet().isSubsetOf(bitset)) {
+          hasSuperSet = true;
+          break;
+        }
+      }
+      if (!hasSuperSet) {
+        bestCandidate.combineCandidates();
+      }
+      if (bestCandidate.getPli() != null && bestCandidate.getPli().isUnique()) {
         addUnique(bestCandidate);
+        if (previousCandidate != null) {
+          maximumNonUniques.add(previousCandidate.getBitSet());
+        }
         // TODO: boost subsets
       } else {
         // Build new composite candidates with primitives and bestCandidate
+        boolean newCandidateCreated = false;
         for (Candidate primitive : primitives) {
           // Combine only with new columns
           if (bestCandidate.getBitSet().containsSubset(primitive.getBitSet())) {
@@ -115,15 +141,19 @@ public class SuperUCCAlgorithm {
           Candidate newCandidate = combineCandidates(bestCandidate, primitive, newCandidateBitSet);
           candidates.add(newCandidate);
           alreadySeenColumnCombinations.add(newCandidate.getBitSet());
+          newCandidateCreated = true;
         }
-
-        ArrayList<Candidate> prune = new ArrayList<>();
-        for (Candidate c : candidates) {
-          if (bestCandidate.getBitSet().containsSubset(c.getBitSet())) {
-            prune.add(c);
-          }
+        if (!newCandidateCreated) {
+          maximumNonUniques.add(bestCandidate.getBitSet());
         }
-        candidates.removeAll(prune);
+//        ArrayList<Candidate> prune = new ArrayList<>();
+//        for (Candidate c : candidates) {
+//          if (bestCandidate.getBitSet().containsSubset(c.getBitSet())) {
+//            prune.add(c);
+//          }
+//        }
+//        candidates.removeAll(prune);
+        previousCandidate = bestCandidate;
       }
     }
   }
@@ -139,7 +169,7 @@ public class SuperUCCAlgorithm {
     // Prune uniques
     for (Candidate c : uniques) {
       // Do not add if we already have a smaller ucc
-      if (unique.getBitSet().containsSubset(c.getBitSet())) {
+      if (c.getBitSet().isSubsetOf(unique.getBitSet())) {
         return;
       }
       // Remove uniques that are larger than the new one (supersets of the unique)
@@ -150,13 +180,13 @@ public class SuperUCCAlgorithm {
     uniques.removeAll(prune);
     prune.clear();
     // Prune candidates
-    for (Candidate c : candidates) {
-      // Remove candidates that are smaller than the new unique (subsets of the unique)
-      if (c.getBitSet().containsSubset(unique.getBitSet())) {
-        prune.add(c);
-      }
-    }
-    candidates.removeAll(prune);
+//    for (Candidate c : candidates) {
+//      // Remove candidates that are smaller than the new unique (subsets of the unique)
+//      if (c.getBitSet().containsSubset(unique.getBitSet())) {
+//        prune.add(c);
+//      }
+//    }
+//    candidates.removeAll(prune);
     uniques.add(unique);
   }
 

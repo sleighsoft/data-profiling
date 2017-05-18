@@ -130,6 +130,6 @@ public class AlgorithmTest {
     ColumnIdentifier[] columns = uccs.getColumnCombination().getColumnIdentifiers().toArray(new ColumnIdentifier[]{});
     assertEquals(2,columns.length);
     assertEquals("C2", columns[0].getColumnIdentifier());
-    assertEquals("C3", columns[0].getColumnIdentifier());
+    assertEquals("C3", columns[1].getColumnIdentifier());
   }
 }
