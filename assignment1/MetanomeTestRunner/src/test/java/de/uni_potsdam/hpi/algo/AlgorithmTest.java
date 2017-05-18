@@ -20,7 +20,7 @@ public class AlgorithmTest {
     ResultCache result = MetanomeMock.executeWithResult(conf);
     UniqueColumnCombination uccs = (UniqueColumnCombination) result.fetchNewResults().get(0);
     ColumnIdentifier[] columns = uccs.getColumnCombination().getColumnIdentifiers().toArray(new ColumnIdentifier[]{});
-    assertEquals(columns.length, 2);
+    assertEquals(2, columns.length);
     assertEquals("C1", columns[0].getColumnIdentifier());
     assertEquals("C2", columns[1].getColumnIdentifier());
   }
@@ -31,7 +31,7 @@ public class AlgorithmTest {
     ResultCache result = MetanomeMock.executeWithResult(conf);
     UniqueColumnCombination uccs = (UniqueColumnCombination) result.fetchNewResults().get(0);
     ColumnIdentifier[] columns = uccs.getColumnCombination().getColumnIdentifiers().toArray(new ColumnIdentifier[]{});
-    assertEquals(columns.length, 2);
+    assertEquals(2,columns.length);
     assertEquals("C2", columns[0].getColumnIdentifier());
     assertEquals("C3", columns[1].getColumnIdentifier());
   }
@@ -42,7 +42,7 @@ public class AlgorithmTest {
     ResultCache result = MetanomeMock.executeWithResult(conf);
     UniqueColumnCombination uccs = (UniqueColumnCombination) result.fetchNewResults().get(0);
     ColumnIdentifier[] columns = uccs.getColumnCombination().getColumnIdentifiers().toArray(new ColumnIdentifier[]{});
-    assertEquals(columns.length, 2);
+    assertEquals(2, columns.length);
     assertEquals("C1", columns[0].getColumnIdentifier());
     assertEquals("C3", columns[1].getColumnIdentifier());
   }
@@ -53,7 +53,7 @@ public class AlgorithmTest {
     ResultCache result = MetanomeMock.executeWithResult(conf);
     UniqueColumnCombination uccs = (UniqueColumnCombination) result.fetchNewResults().get(0);
     ColumnIdentifier[] columns = uccs.getColumnCombination().getColumnIdentifiers().toArray(new ColumnIdentifier[]{});
-    assertEquals(columns.length, 3);
+    assertEquals(3,columns.length);
     assertEquals("C1", columns[0].getColumnIdentifier());
     assertEquals("C2", columns[1].getColumnIdentifier());
     assertEquals("C3", columns[2].getColumnIdentifier());
@@ -67,7 +67,7 @@ public class AlgorithmTest {
     String c1 = ((UniqueColumnCombination) uccs.get(0)).getColumnCombination().getColumnIdentifiers().toArray(new ColumnIdentifier[]{})[0].getColumnIdentifier();
     String c2 = ((UniqueColumnCombination) uccs.get(1)).getColumnCombination().getColumnIdentifiers().toArray(new ColumnIdentifier[]{})[0].getColumnIdentifier();
     String c3 = ((UniqueColumnCombination) uccs.get(2)).getColumnCombination().getColumnIdentifiers().toArray(new ColumnIdentifier[]{})[0].getColumnIdentifier();
-    assertEquals(uccs.size(), 3);
+    assertEquals(3, uccs.size());
     assertEquals("C1", c1);
     assertEquals("C2", c2);
     assertEquals("C3", c3);
@@ -77,7 +77,7 @@ public class AlgorithmTest {
   public void testNOUCC() {
     Config conf = new Config(Config.Algorithm.SuperUCC, Config.Dataset.UCCNO);
     ResultCache result = MetanomeMock.executeWithResult(conf);
-    assertEquals(result.fetchNewResults().size(), 0);
+    assertEquals(0,result.fetchNewResults().size());
   }
 
   @Test
@@ -85,10 +85,10 @@ public class AlgorithmTest {
     Config conf = new Config(Config.Algorithm.SuperUCC, Config.Dataset.UCCONE);
     ResultCache result = MetanomeMock.executeWithResult(conf);
     List<Result> results = result.fetchNewResults();
-    assertEquals(results.size(), 1);
+    assertEquals(1,results.size());
     UniqueColumnCombination uccs = (UniqueColumnCombination) results.get(0);
     ColumnIdentifier[] columns = uccs.getColumnCombination().getColumnIdentifiers().toArray(new ColumnIdentifier[]{});
-    assertEquals(columns.length, 1);
+    assertEquals(1,columns.length);
     assertEquals("C1", columns[0].getColumnIdentifier());
   }
 
@@ -97,14 +97,14 @@ public class AlgorithmTest {
     Config conf = new Config(Config.Algorithm.SuperUCC, Config.Dataset.UCCTWO);
     ResultCache result = MetanomeMock.executeWithResult(conf);
     List<Result> results = result.fetchNewResults();
-    assertEquals(results.size(), 2);
+    assertEquals(2,results.size());
     UniqueColumnCombination uccs = (UniqueColumnCombination) results.get(0);
     ColumnIdentifier[] columns = uccs.getColumnCombination().getColumnIdentifiers().toArray(new ColumnIdentifier[]{});
-    assertEquals(columns.length, 1);
+    assertEquals(1, columns.length);
     assertEquals("C1", columns[0].getColumnIdentifier());
     uccs = (UniqueColumnCombination) results.get(1);
     columns = uccs.getColumnCombination().getColumnIdentifiers().toArray(new ColumnIdentifier[]{});
-    assertEquals(columns.length, 1);
+    assertEquals(1,columns.length);
     assertEquals("C2", columns[0].getColumnIdentifier());
   }
 
@@ -113,11 +113,23 @@ public class AlgorithmTest {
     Config conf = new Config(Config.Algorithm.SuperUCC, Config.Dataset.UCCONECOLUMNONE);
     ResultCache result = MetanomeMock.executeWithResult(conf);
     List<Result> results = result.fetchNewResults();
-    assertEquals(results.size(), 1);
+    assertEquals(1,results.size());
     UniqueColumnCombination uccs = (UniqueColumnCombination) results.get(0);
     ColumnIdentifier[] columns = uccs.getColumnCombination().getColumnIdentifiers().toArray(new ColumnIdentifier[]{});
-    assertEquals(columns.length, 1);
+    assertEquals(1, columns.length);
     assertEquals("C1", columns[0].getColumnIdentifier());
   }
 
+  @Test
+  public void testPruneTooMuch() {
+    Config conf = new Config(Config.Algorithm.SuperUCC, Config.Dataset.PRUNETOOMUCH);
+    ResultCache result = MetanomeMock.executeWithResult(conf);
+    List<Result> results = result.fetchNewResults();
+    assertEquals(1, results.size());
+    UniqueColumnCombination uccs = (UniqueColumnCombination) results.get(0);
+    ColumnIdentifier[] columns = uccs.getColumnCombination().getColumnIdentifiers().toArray(new ColumnIdentifier[]{});
+    assertEquals(2,columns.length);
+    assertEquals("C2", columns[0].getColumnIdentifier());
+    assertEquals("C3", columns[0].getColumnIdentifier());
+  }
 }

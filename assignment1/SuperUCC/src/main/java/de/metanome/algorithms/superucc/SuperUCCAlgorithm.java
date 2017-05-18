@@ -142,7 +142,7 @@ public class SuperUCCAlgorithm {
       if (unique.getBitSet().containsSubset(c.getBitSet())) {
         return;
       }
-      // Remove uniques that are larger than the new one
+      // Remove uniques that are larger than the new one (supersets of the unique)
       if (c.getBitSet().containsSubset(unique.getBitSet())) {
         prune.add(c);
       }
@@ -151,7 +151,7 @@ public class SuperUCCAlgorithm {
     prune.clear();
     // Prune candidates
     for (Candidate c : candidates) {
-      // Remove candidates that are smaller than the new unique
+      // Remove candidates that are smaller than the new unique (subsets of the unique)
       if (c.getBitSet().containsSubset(unique.getBitSet())) {
         prune.add(c);
       }
