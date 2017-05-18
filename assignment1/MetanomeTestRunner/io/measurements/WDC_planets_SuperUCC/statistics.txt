@@ -1,9 +1,0 @@
-de.metanome.algorithms.superucc.SuperUCC
-
-Config:
-	algorithm: SuperUCC
-	dataset: WDC_planets.csv
-
-Runtime: 229
-
-Results: 6

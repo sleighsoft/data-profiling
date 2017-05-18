@@ -13,7 +13,7 @@ import de.metanome.algorithm_integration.configuration.ConfigurationRequirementS
 import de.metanome.algorithm_integration.input.RelationalInputGenerator;
 import de.metanome.algorithm_integration.result_receiver.UniqueColumnCombinationResultReceiver;
 
-public class SuperUCC extends SuperUCCAlgorithm // Separating the algorithm implementation and the Metanome interface implementation is good practice
+public class SuperUCC extends SuperUCCAlgorithm
     implements UniqueColumnCombinationsAlgorithm, // Defines the type of the algorithm, i.e., the result type, for instance, FunctionalDependencyAlgorithm or InclusionDependencyAlgorithm; implementing multiple types is possible
     RelationalInputParameterAlgorithm {
 
@@ -35,6 +35,7 @@ public class SuperUCC extends SuperUCCAlgorithm // Separating the algorithm impl
   @Override
   public ArrayList<ConfigurationRequirement<?>> getConfigurationRequirements() { // Tells Metanome which and how many parameters the algorithm needs
     ArrayList<ConfigurationRequirement<?>> conf = new ArrayList<>();
+    conf.add(new ConfigurationRequirementRelationalInput(SuperUCC.Identifier.INPUT_GENERATOR.name()));
     return conf;
   }
 
