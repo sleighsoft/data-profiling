@@ -9,7 +9,7 @@ import de.metanome.algorithm_integration.input.RelationalInput;
 import de.metanome.algorithm_integration.input.RelationalInputGenerator;
 import de.metanome.algorithm_integration.results.Result;
 import de.metanome.algorithm_integration.results.UniqueColumnCombination;
-import de.metanome.algorithms.superucc.SuperUCC;
+import de.metanome.algorithms.lighthouseucc.LighthouseUCC;
 import de.metanome.backend.input.file.DefaultFileInputGenerator;
 import de.metanome.backend.result_receiver.ResultCache;
 import de.uni_potsdam.hpi.metanome_test_runner.config.Config;
@@ -32,8 +32,8 @@ public class MetanomeMock {
 
       ResultCache resultReceiver = new ResultCache("MetanomeMock", getAcceptedColumns(inputGenerator));
 
-      SuperUCC algorithm = new SuperUCC();
-      algorithm.setRelationalInputConfigurationValue(SuperUCC.Identifier.INPUT_GENERATOR.name(), inputGenerator);
+      LighthouseUCC algorithm = new LighthouseUCC();
+      algorithm.setRelationalInputConfigurationValue(LighthouseUCC.Identifier.INPUT_GENERATOR.name(), inputGenerator);
       algorithm.setResultReceiver(resultReceiver);
 
       long runtime = System.currentTimeMillis();
@@ -58,8 +58,8 @@ public class MetanomeMock {
 
       ResultCache resultReceiver = new ResultCache("MetanomeMock", getAcceptedColumns(inputGenerator));
 
-      SuperUCC algorithm = new SuperUCC();
-      algorithm.setRelationalInputConfigurationValue(SuperUCC.Identifier.INPUT_GENERATOR.name(), inputGenerator);
+      LighthouseUCC algorithm = new LighthouseUCC();
+      algorithm.setRelationalInputConfigurationValue(LighthouseUCC.Identifier.INPUT_GENERATOR.name(), inputGenerator);
       algorithm.setResultReceiver(resultReceiver);
 
       long runtime = System.currentTimeMillis();

@@ -3,12 +3,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>de.metanome.algorithms.superucc</groupId>
-    <artifactId>SuperUCC</artifactId>
+    <groupId>de.metanome.algorithms.lighthouseucc</groupId>
+    <artifactId>LighthouseUCC</artifactId>
     <version>${metanome.version}</version>
     <packaging>jar</packaging>
 
-    <name>SuperUCC</name>
+    <name>LighthouseUCC</name>
 
     <properties>
         <metanome.version>1.1-SNAPSHOT</metanome.version>
@@ -80,7 +80,7 @@
                     <archive>
                         <manifestEntries>
                             <Algorithm-Bootstrap-Class>
-                                de.metanome.algorithms.superucc.SuperUCC
+                                de.metanome.algorithms.lighthouseucc.LighthouseUCC
                             </Algorithm-Bootstrap-Class>
                         </manifestEntries>
                     </archive>

@@ -1,4 +1,4 @@
-package de.metanome.algorithms.superucc;
+package de.metanome.algorithms.lighthouseucc;
 
 import de.metanome.algorithm_helper.data_structures.ColumnCombinationBitset;
 import de.metanome.algorithm_helper.data_structures.PLIBuilder;
@@ -17,7 +17,7 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 
 import java.util.*;
 
-public class SuperUCCAlgorithm {
+public class LighthouseUCCAlgorithm {
 
   protected RelationalInputGenerator inputGenerator = null;
   protected UniqueColumnCombinationResultReceiver resultReceiver = null;
@@ -106,6 +106,8 @@ public class SuperUCCAlgorithm {
       } else {
         // Build new composite candidates with primitives and bestCandidate
         for (Candidate primitive : primitives) {
+          // TODO Combine only with primitives that have a smaller score than the individual columns already in the
+          // TODO candidate (e.g. Combine AC only wih D, E and not with B if A>B>C>D>E)
           // Combine only with new columns
           if (bestCandidate.getBitSet().containsSubset(primitive.getBitSet())) {
             continue;
@@ -116,7 +118,7 @@ public class SuperUCCAlgorithm {
             continue;
           }
           // Filter out candidates whose subsets are already unique
-          if(hasSupersetInUniques(newCandidateBitSet)) {
+          if(hasSubsetInUniques(newCandidateBitSet)) {
             continue;
           }
           Candidate newCandidate = combineCandidates(bestCandidate, primitive, newCandidateBitSet);
@@ -146,7 +148,7 @@ public class SuperUCCAlgorithm {
       ColumnCombinationBitset next = it.next();
       if (alreadySeenColumnCombinations.contains(next)) {
         it.remove();
-      } else if (hasSupersetInUniques(next)){
+      } else if (hasSubsetInUniques(next)){
         it.remove();
       } else {
         List<Integer> setBits = next.getSetBits();
@@ -173,7 +175,7 @@ public class SuperUCCAlgorithm {
    * @param bitset
    * @return
    */
-  protected boolean hasSupersetInUniques(ColumnCombinationBitset bitset) {
+  protected boolean hasSubsetInUniques(ColumnCombinationBitset bitset) {
     for (Candidate u : uniques) {
       if (u.getBitSet().isSubsetOf(bitset)) {
         return true;
@@ -191,6 +193,7 @@ public class SuperUCCAlgorithm {
   protected void addUnique(Candidate unique) {
     ArrayList<Candidate> prune = new ArrayList<>();
     // Prune uniques
+    // TODO Use ListIterator
     for (Candidate c : uniques) {
       // Do not add if we already have a smaller ucc
       if (unique.getBitSet().containsSubset(c.getBitSet())) {
@@ -204,13 +207,13 @@ public class SuperUCCAlgorithm {
     uniques.removeAll(prune);
     prune.clear();
     // Prune candidates
-    for (Candidate c : candidates) {
-      // Remove candidates that are smaller than the new unique (subsets of the unique)
-      if (c.getBitSet().containsSubset(unique.getBitSet())) {
-        prune.add(c);
-      }
-    }
-    candidates.removeAll(prune);
+//    for (Candidate c : candidates) {
+//      // Remove candidates that are smaller than the new unique (subsets of the unique)
+//      if (c.getBitSet().containsSubset(unique.getBitSet())) {
+//        prune.add(c);
+//      }
+//    }
+//    candidates.removeAll(prune);
     uniques.add(unique);
   }
 

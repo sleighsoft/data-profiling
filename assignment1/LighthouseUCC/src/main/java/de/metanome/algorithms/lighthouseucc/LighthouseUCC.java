@@ -1,4 +1,4 @@
-package de.metanome.algorithms.superucc;
+package de.metanome.algorithms.lighthouseucc;
 
 import java.util.ArrayList;
 
@@ -6,14 +6,11 @@ import de.metanome.algorithm_integration.AlgorithmConfigurationException;
 import de.metanome.algorithm_integration.AlgorithmExecutionException;
 import de.metanome.algorithm_integration.algorithm_types.*;
 import de.metanome.algorithm_integration.configuration.ConfigurationRequirement;
-import de.metanome.algorithm_integration.configuration.ConfigurationRequirementBoolean;
-import de.metanome.algorithm_integration.configuration.ConfigurationRequirementInteger;
 import de.metanome.algorithm_integration.configuration.ConfigurationRequirementRelationalInput;
-import de.metanome.algorithm_integration.configuration.ConfigurationRequirementString;
 import de.metanome.algorithm_integration.input.RelationalInputGenerator;
 import de.metanome.algorithm_integration.result_receiver.UniqueColumnCombinationResultReceiver;
 
-public class SuperUCC extends SuperUCCAlgorithm
+public class LighthouseUCC extends LighthouseUCCAlgorithm
     implements UniqueColumnCombinationsAlgorithm, // Defines the type of the algorithm, i.e., the result type, for instance, FunctionalDependencyAlgorithm or InclusionDependencyAlgorithm; implementing multiple types is possible
     RelationalInputParameterAlgorithm {
 
@@ -28,21 +25,21 @@ public class SuperUCC extends SuperUCCAlgorithm
 
   @Override
   public String getDescription() {
-    return "SuperUCC - An Algorithm to detect Unique Column Combinations"; // A string briefly describing what this algorithm does
+    return "LighthouseUCC - An Algorithm to detect Unique Column Combinations"; // A string briefly describing what this algorithm does
   }
 
   //
   @Override
   public ArrayList<ConfigurationRequirement<?>> getConfigurationRequirements() { // Tells Metanome which and how many parameters the algorithm needs
     ArrayList<ConfigurationRequirement<?>> conf = new ArrayList<>();
-    conf.add(new ConfigurationRequirementRelationalInput(SuperUCC.Identifier.INPUT_GENERATOR.name()));
+    conf.add(new ConfigurationRequirementRelationalInput(LighthouseUCC.Identifier.INPUT_GENERATOR.name()));
     return conf;
   }
 
   @Override
   public void setRelationalInputConfigurationValue(String identifier, RelationalInputGenerator... values)
       throws AlgorithmConfigurationException {
-    if (!SuperUCC.Identifier.INPUT_GENERATOR.name().equals(identifier))
+    if (!LighthouseUCC.Identifier.INPUT_GENERATOR.name().equals(identifier))
       this.handleUnknownConfiguration(identifier, values);
     this.inputGenerator = values[0];
   }

@@ -1,4 +1,4 @@
-package de.metanome.algorithms.superucc;
+package de.metanome.algorithms.lighthouseucc;
 
 import de.metanome.algorithm_helper.data_structures.ColumnCombinationBitset;
 import de.metanome.algorithm_helper.data_structures.PositionListIndex;
