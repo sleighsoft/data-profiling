@@ -9,22 +9,26 @@ public class Candidate {
   private ColumnCombinationBitset bitSet;
   private PositionListIndex pli;
 
-  public Candidate(long score, double boost, PositionListIndex pli, int... columns) {
+  private long lowestPrimitiveScore;
+
+  public Candidate(long score, long lowestPrimitiveScore, double boost, PositionListIndex pli, int... columns) {
     this.score = score;
+    this.lowestPrimitiveScore = lowestPrimitiveScore;
     this.boost = boost;
     this.pli = pli;
     this.bitSet = new ColumnCombinationBitset(columns);
   }
 
-  public Candidate(long score, double boost, PositionListIndex pli, ColumnCombinationBitset bitSet) {
+  public Candidate(long score, long lowestPrimitiveScore, double boost, PositionListIndex pli, ColumnCombinationBitset bitSet) {
     this.score = score;
+    this.lowestPrimitiveScore = lowestPrimitiveScore;
     this.boost = boost;
     this.pli = pli;
     this.bitSet = bitSet;
   }
 
   public long getBoostedScore() {
-    return (long) (score * boost);
+    return (long) (score + boost);
   }
 
   public long getScore() {
@@ -33,6 +37,14 @@ public class Candidate {
 
   public void setScore(long score) {
     this.score = score;
+  }
+
+  public long getLowestPrimitiveScore() {
+    return lowestPrimitiveScore;
+  }
+
+  public void setLowestPrimitiveScore(long lowestPrimitiveScore) {
+    this.lowestPrimitiveScore = lowestPrimitiveScore;
   }
 
   public double getBoost() {

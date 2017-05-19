@@ -56,7 +56,7 @@ public class LighthouseUCCAlgorithm {
       // Initial primitive candidate score is #DistinctValuesInColumn
       long distinct = numberOfTuples - sum + pli.getClusters().size();
       // Filter out already unique primitives
-      Candidate newCandidate = new Candidate(distinct, 1, pli, column_index);
+      Candidate newCandidate = new Candidate(distinct, distinct, 0, pli, column_index);
       if (pli.isUnique()) {
         uniques.add(newCandidate);
       } else {
@@ -78,17 +78,18 @@ public class LighthouseUCCAlgorithm {
   /**
    * Combines to candidates into a new one. Creates a new score for the composite candidate.
    *
-   * @param c1 Candidate
-   * @param c2 Candidate
-   * @param bitSet The new bitset for the two candidates. Normally we can calculate the bitset from,
-   *               the two candidates, but we want to use the bitset for a 'already seen test' without
-   *               already computing the new PLI.
+   * @param c1        Candidate
+   * @param primitive Candidate
+   * @param bitSet    The new bitset for the two candidates. Normally we can calculate the bitset from,
+   *                  the two candidates, but we want to use the bitset for a 'already seen test' without
+   *                  already computing the new PLI.
    * @return A new {@link Candidate}
    */
-  protected Candidate combineCandidates(Candidate c1, Candidate c2, ColumnCombinationBitset bitSet) {
-    return new Candidate(c1.getScore() + c2.getScore(),
-        1,
-        c1.getPli().intersect(c2.getPli()),
+  protected Candidate combineCandidateWithPrimitive(Candidate c1, Candidate primitive, ColumnCombinationBitset bitSet) {
+    return new Candidate(c1.getScore() + primitive.getScore(),
+        primitive.getScore(),
+        0,
+        c1.getPli().intersect(primitive.getPli()), // TODO build PLI lazy
         bitSet);
   }
 
@@ -106,10 +107,13 @@ public class LighthouseUCCAlgorithm {
       } else {
         // Build new composite candidates with primitives and bestCandidate
         for (Candidate primitive : primitives) {
-          // TODO Combine only with primitives that have a smaller score than the individual columns already in the
-          // TODO candidate (e.g. Combine AC only wih D, E and not with B if A>B>C>D>E)
           // Combine only with new columns
           if (bestCandidate.getBitSet().containsSubset(primitive.getBitSet())) {
+            continue;
+          }
+          // Combine only with primitives that have a smaller score than the individual columns already in the
+          // candidate (e.g. Combine AC only wih D, E and not with B if A>B>C>D>E)
+          if(bestCandidate.getLowestPrimitiveScore() < primitive.getLowestPrimitiveScore()) {
             continue;
           }
           // Add only completely new candidates
@@ -117,11 +121,7 @@ public class LighthouseUCCAlgorithm {
           if (alreadySeenColumnCombinations.contains(newCandidateBitSet)) {
             continue;
           }
-          // Filter out candidates whose subsets are already unique
-          if(hasSubsetInUniques(newCandidateBitSet)) {
-            continue;
-          }
-          Candidate newCandidate = combineCandidates(bestCandidate, primitive, newCandidateBitSet);
+          Candidate newCandidate = combineCandidateWithPrimitive(bestCandidate, primitive, newCandidateBitSet);
           candidates.add(newCandidate);
           alreadySeenColumnCombinations.add(newCandidate.getBitSet());
         }
@@ -139,24 +139,24 @@ public class LighthouseUCCAlgorithm {
   /**
    * Build all direct subsets of a {@link Candidate}. We do this to prevent the algorithm from omitting potential column
    * combinations.
+   *
    * @param c A {@link Candidate}
    */
   protected void addDirectSubsets(Candidate c) {
     List<ColumnCombinationBitset> allSubsets = c.getBitSet().getNSubsetColumnCombinations(c.getBitSet().size() - 1);
     ListIterator<ColumnCombinationBitset> it = allSubsets.listIterator();
-    while(it.hasNext()) {
-      ColumnCombinationBitset next = it.next();
-      if (alreadySeenColumnCombinations.contains(next)) {
-        it.remove();
-      } else if (hasSubsetInUniques(next)){
-        it.remove();
-      } else {
+    for (ColumnCombinationBitset next : allSubsets) {
+      if (!alreadySeenColumnCombinations.contains(next)) {
+        long lowestPrimitiveScore = -1;
         List<Integer> setBits = next.getSetBits();
         long score = 0;
         PositionListIndex pli = new PositionListIndex();
         for (Integer i : setBits) {
           Candidate prim = originalPrimitives.get(i);
-          if(score == 0) {
+          if (lowestPrimitiveScore == -1 || prim.getScore() < lowestPrimitiveScore) {
+            lowestPrimitiveScore = prim.getScore();
+          }
+          if (score == 0) {
             score += prim.getScore();
             pli = prim.getPli();
           } else {
@@ -164,24 +164,10 @@ public class LighthouseUCCAlgorithm {
             pli = pli.intersect(prim.getPli());
           }
         }
-        candidates.add(new Candidate(score, 0, pli, next));
+        candidates.add(new Candidate(score, lowestPrimitiveScore, c.getBoostedScore(), pli, next));
         alreadySeenColumnCombinations.add(next);
       }
     }
-  }
-
-  /**
-   * Checks if the {@link ColumnCombinationBitset} is already contained in the uniques list.
-   * @param bitset
-   * @return
-   */
-  protected boolean hasSubsetInUniques(ColumnCombinationBitset bitset) {
-    for (Candidate u : uniques) {
-      if (u.getBitSet().isSubsetOf(bitset)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /**
@@ -207,13 +193,13 @@ public class LighthouseUCCAlgorithm {
     uniques.removeAll(prune);
     prune.clear();
     // Prune candidates
-//    for (Candidate c : candidates) {
-//      // Remove candidates that are smaller than the new unique (subsets of the unique)
-//      if (c.getBitSet().containsSubset(unique.getBitSet())) {
-//        prune.add(c);
-//      }
-//    }
-//    candidates.removeAll(prune);
+    for (Candidate c : candidates) {
+      // Remove candidates that are smaller than the new unique (subsets of the unique)
+      if (c.getBitSet().containsSubset(unique.getBitSet())) {
+        prune.add(c);
+      }
+    }
+    candidates.removeAll(prune);
     uniques.add(unique);
   }
 
