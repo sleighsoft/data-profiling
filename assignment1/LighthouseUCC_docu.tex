@@ -1,0 +1,63 @@
+\documentclass{scrartcl}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{enumerate}
+\usepackage[ruled, vlined, linesnumbered]{algorithm2e}
+
+
+\setlength{\parindent}{0mm}
+
+\begin{document}
+\pagestyle{plain}
+
+\section*{LighthouseUCC}
+
+\section{Konzept}
+LighthouseUCC ist ein von uns entwickelter Algorithmus und baut nicht direkt auf anderen Algorithmen auf.
+\subsection{Genereller Ablauf}
+Wir erzeugen PLIs für jede Spalte. 
+Wir berechnen für jede Spalte die Anzahl distinct Werte als Score. 
+Dann filtern wir alle Spalten heraus, die bereits Unique sind.
+Die verbliebenen Kandidaten kommen in eine Liste.
+Mainloop(Solange Kandidaten in unserer Liste vorhanden sind)
+Wir sortieren die Kandidaten anhand ihres Scores. (PriorityQueue)
+Wir wählen nun den Kandidaten mit dem höchsten Score und testen ihn auf Uniqueness.
+Wenn er Unique ist:
+- Füge ihn in die Unique Liste ein
+- Entferne SuperSets dieses Kandidaten aus der Unique List
+- Außerdem erzeugen wir direkte SubSets des Kandidaten und fügen diese in die Kandidaten Liste ein.
+Sonst:
+- Vom Kandidaten werden jetzt mit einzelnen Spalten Spaltenkombinationen gebildet.
+- Dabei werden nur neue Spaltenkombinationen(keine Permutationen) berücksichtigt.
+- Auch erzeugen wir keine Spaltenkombination für die wir bereits kleinere UCCs gefunden haben.
+- Diese neuen Spaltenkombinationen sind neue Kandidaten in unserer Liste.
+
+\subsection{NULL-Semantik}
+$null \neq null$ \\
+- potentiell hohe Wahrscheinlichkeit teil einer minimalen UCC zu sein\\
+- durch hohen Score früh in unserem Algorithmus behandelt\\
+$null = null$ \\
+- potentiell niedrige Wahrscheinlichkeit teil einer minimalen UCC zu sein \\
+- durch hohen Score spät in unserem Algorithmus behandelt
+\section{Performance}
+Unsere Messungen haben wir auf einem Windows PC mit i7 4500U 1,80GHz durchgeführt. Der Anwendung standen 2GB RAM zur Verfügung.\\
+
+\begin{tabular}{c|c|c}
+Datensatz & Number of UCCs & Time \\
+\hline
+ncvoter-1k.csv & 98 & 1s 206ms \\
+adult.csv & none & 306ms \\
+WDC\_astronomical.csv & 4 & 25ms \\
+WDC\_satellites.csv & 4 & 44ms\\
+
+\end{tabular}
+\\
+\\
+Beim Testdurchlauf unseres Algorithmus auf dem Datenset ncvoter.csv(958MB) tritt ein Out-of-Heap-Fehler auf.\\
+
+\end{document}
