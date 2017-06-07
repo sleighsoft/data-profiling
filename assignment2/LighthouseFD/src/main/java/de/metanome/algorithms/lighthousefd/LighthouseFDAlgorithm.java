@@ -29,7 +29,6 @@ public class LighthouseFDAlgorithm {
 
   protected List<Candidate> primitives = new ArrayList<>();
   // TODO: initialCapacity can be calculated based on input size
-  protected List<Candidate> candidates = new ArrayList();
   protected List<FunctionalDependency> finalFDs = new ArrayList<>();
 
   public void execute() throws AlgorithmExecutionException {
@@ -50,7 +49,7 @@ public class LighthouseFDAlgorithm {
   }
 
   /**
-   * Iterates over the candidates list, finds uniques and adds them to the uniques list.
+   * Iterates over a single dependant and finds the minimal FDs for it.
    */
   protected void mainLoop(Candidate dependant, List<Candidate> dependantPrimitives) {
     List<Candidate> nonFDThisLevel = new ArrayList<>();
@@ -72,11 +71,14 @@ public class LighthouseFDAlgorithm {
       // build next level
       for(Candidate base : nonFDThisLevel) {
         for (Candidate primitive : dependantPrimitives){
+          ColumnCombinationBitset baseBits = base.getBitSet();
+          ColumnCombinationBitset primitiveBits = primitive.getBitSet();
           // check that we are actually creating something new
-          if(base.getBitSet().containsSubset(primitive.getBitSet())){
+          if(baseBits.getSetBits().get(baseBits.getSetBits().size() -1 ) >= primitive.getBitSet().getSetBits().get(0)){
             continue;
           }
-          ColumnCombinationBitset proposed = base.getBitSet().union(primitive.getBitSet());
+          ColumnCombinationBitset proposed = baseBits.union(primitiveBits);
+          
           // check that we have not found a more minimal combination as FD
           boolean okay = true;
           for(ColumnCombinationBitset minimalFD : minimalFDs){
@@ -146,10 +148,9 @@ public class LighthouseFDAlgorithm {
 
     for (Candidate dependant : primitives) {
       ColumnCombinationBitset bitset = dependant.getBitSet();
-      candidates.clear();
-      candidates.addAll(primitives);
-      candidates.remove(dependant);
-      mainLoop(dependant, primitives);
+      List<Candidate> runPrimitives = new ArrayList<>(primitives);
+      runPrimitives.remove(dependant);
+      mainLoop(dependant, runPrimitives);
     }
     return;
   }
