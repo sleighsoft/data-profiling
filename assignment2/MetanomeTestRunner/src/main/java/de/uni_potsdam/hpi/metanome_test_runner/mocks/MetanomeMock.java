@@ -7,6 +7,7 @@ import de.metanome.algorithm_integration.configuration.ConfigurationSettingFileI
 import de.metanome.algorithm_integration.input.InputGenerationException;
 import de.metanome.algorithm_integration.input.RelationalInput;
 import de.metanome.algorithm_integration.input.RelationalInputGenerator;
+import de.metanome.algorithm_integration.results.FunctionalDependency;
 import de.metanome.algorithm_integration.results.Result;
 import de.metanome.algorithm_integration.results.UniqueColumnCombination;
 import de.metanome.algorithms.lighthousefd.LighthouseFD;
@@ -101,8 +102,8 @@ public class MetanomeMock {
   private static String format(List<Result> results) {
     StringBuilder builder = new StringBuilder();
     for (Result result : results) {
-      UniqueColumnCombination ucc = (UniqueColumnCombination) result;
-      builder.append(ucc.toString() + "\r\n");
+      FunctionalDependency fd = (FunctionalDependency) result;
+      builder.append(fd.toString() + "\r\n");
     }
     return builder.toString();
   }

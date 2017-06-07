@@ -8,10 +8,11 @@ import de.metanome.algorithm_integration.algorithm_types.*;
 import de.metanome.algorithm_integration.configuration.ConfigurationRequirement;
 import de.metanome.algorithm_integration.configuration.ConfigurationRequirementRelationalInput;
 import de.metanome.algorithm_integration.input.RelationalInputGenerator;
+import de.metanome.algorithm_integration.result_receiver.FunctionalDependencyResultReceiver;
 import de.metanome.algorithm_integration.result_receiver.UniqueColumnCombinationResultReceiver;
 
 public class LighthouseFD extends LighthouseFDAlgorithm
-    implements UniqueColumnCombinationsAlgorithm, // Defines the type of the algorithm, i.e., the result type, for instance, FunctionalDependencyAlgorithm or InclusionDependencyAlgorithm; implementing multiple types is possible
+    implements FunctionalDependencyAlgorithm, // Defines the type of the algorithm, i.e., the result type, for instance, FunctionalDependencyAlgorithm or InclusionDependencyAlgorithm; implementing multiple types is possible
     RelationalInputParameterAlgorithm {
 
   public enum Identifier {
@@ -45,8 +46,8 @@ public class LighthouseFD extends LighthouseFDAlgorithm
   }
 
   @Override
-  public void setResultReceiver(UniqueColumnCombinationResultReceiver uniqueColumnCombinationResultReceiver) {
-    this.resultReceiver = uniqueColumnCombinationResultReceiver;
+  public void setResultReceiver(FunctionalDependencyResultReceiver functionalDependencyResultReceiver) {
+    this.resultReceiver = functionalDependencyResultReceiver;
   } // Defines the input type of the algorithm; relational input is any relational input from files or databases; more specific input specifications are possible
 
   @Override

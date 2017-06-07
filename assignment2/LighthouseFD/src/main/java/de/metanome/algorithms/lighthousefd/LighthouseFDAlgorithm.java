@@ -13,17 +13,16 @@ import de.metanome.algorithm_integration.input.RelationalInput;
 import de.metanome.algorithm_integration.input.RelationalInputGenerator;
 import de.metanome.algorithm_integration.result_receiver.ColumnNameMismatchException;
 import de.metanome.algorithm_integration.result_receiver.CouldNotReceiveResultException;
-import de.metanome.algorithm_integration.result_receiver.UniqueColumnCombinationResultReceiver;
-import de.metanome.algorithm_integration.results.UniqueColumnCombination;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import javafx.util.Pair;
+import de.metanome.algorithm_integration.result_receiver.FunctionalDependencyResultReceiver;
+import de.metanome.algorithm_integration.results.FunctionalDependency;
+
 
 import java.util.*;
 
 public class LighthouseFDAlgorithm {
 
   protected RelationalInputGenerator inputGenerator = null;
-  protected UniqueColumnCombinationResultReceiver resultReceiver = null;
+  protected FunctionalDependencyResultReceiver resultReceiver = null;
 
   protected String relationName;
   protected List<String> columnNames;
@@ -31,7 +30,7 @@ public class LighthouseFDAlgorithm {
   protected List<Candidate> primitives = new ArrayList<>();
   // TODO: initialCapacity can be calculated based on input size
   protected List<Candidate> candidates = new ArrayList();
-  protected List<Tuple<ColumnCombination, ColumnIdentifier>> minimalFDs = new ArrayList<>();
+  protected List<FunctionalDependency> finalFDs = new ArrayList<>();
 
   public void execute() throws AlgorithmExecutionException {
     this.initialize();
@@ -47,25 +46,8 @@ public class LighthouseFDAlgorithm {
       column_index++;
     }
     this.generateResults();
-    this.emit(minimalFDs);
+    this.emit(finalFDs);
   }
-
-  /**
-   * Combines to candidates into a new one. Creates a new score for the composite candidate.
-   *
-   * @param c1 Candidate
-   * @param c2 Candidate
-   * @param bitSet The new bitset for the two candidates. Normally we can calculate the bitset from,
-   *               the two candidates, but we want to use the bitset for a 'already seen test' without
-   *               already computing the new PLI.
-   * @return A new {@link Candidate}
-   */
-//  protected Candidate combineCandidates(Candidate c1, Candidate c2, ColumnCombinationBitset bitSet) {
-//    return new Candidate(c1.getScore() + c2.getScore(),
-//        1,
-//        c1.getPli().intersect(c2.getPli()),
-//        bitSet);
-//  }
 
   /**
    * Iterates over the candidates list, finds uniques and adds them to the uniques list.
@@ -113,6 +95,12 @@ public class LighthouseFDAlgorithm {
         }
       }
     }
+    for(ColumnCombinationBitset minimalFD : minimalFDs) {
+      FunctionalDependency fd = new FunctionalDependency( minimalFD.createColumnCombination(relationName, columnNames),
+                                                          dependant.getBitSet().createColumnCombination(relationName, columnNames).getColumnIdentifiers().toArray(new ColumnIdentifier[]{})[0]);
+      finalFDs.add(fd);
+    }
+
 
   }
 
@@ -124,86 +112,6 @@ public class LighthouseFDAlgorithm {
     }
     else return false;
   }
-
-  /**
-   * Build all direct subsets of a {@link Candidate}. We do this to prevent the algorithm from omitting potential column
-   * combinations.
-   * @param c A {@link Candidate}
-   */
-//  protected void addDirectSubsets(Candidate c) {
-//    List<ColumnCombinationBitset> allSubsets = c.getBitSet().getNSubsetColumnCombinations(c.getBitSet().size() - 1);
-//    ListIterator<ColumnCombinationBitset> it = allSubsets.listIterator();
-//    while(it.hasNext()) {
-//      ColumnCombinationBitset next = it.next();
-//      if (alreadySeenColumnCombinations.contains(next)) {
-//        it.remove();
-//      } else if (hasSupersetInUniques(next)){
-//        it.remove();
-//      } else {
-//        List<Integer> setBits = next.getSetBits();
-//        long score = 0;
-//        PositionListIndex pli = new PositionListIndex();
-//        for (Integer i : setBits) {
-//          Candidate prim = originalPrimitives.get(i);
-//          if(score == 0) {
-//            score += prim.getScore();
-//            pli = prim.getPli();
-//          } else {
-//            score += prim.getScore();
-//            pli = pli.intersect(prim.getPli());
-//          }
-//        }
-//        candidates.add(new Candidate(score, 0, pli, next));
-//        alreadySeenColumnCombinations.add(next);
-//      }
-//    }
-//  }
-
-  /**
-   * Checks if the {@link ColumnCombinationBitset} is already contained in the uniques list.
-   * @param bitset
-   * @return
-   */
-//  protected boolean hasSupersetInUniques(ColumnCombinationBitset bitset) {
-//    for (Candidate u : uniques) {
-//      if (u.getBitSet().isSubsetOf(bitset)) {
-//        return true;
-//      }
-//    }
-//    return false;
-//  }
-
-  /**
-   * Adds a new unique to the uniques list if it is the current minimal unique.
-   * Prunes candidates from the candidates and unique list that are no longer needed.
-   *
-   * @param unique The {@link Candidate} to add to the uniques list.
-   */
-//  protected void addUnique(Candidate unique) {
-//    ArrayList<Candidate> prune = new ArrayList<>();
-//    // Prune uniques
-//    for (Candidate c : uniques) {
-//      // Do not add if we already have a smaller ucc
-//      if (unique.getBitSet().containsSubset(c.getBitSet())) {
-//        return;
-//      }
-//      // Remove uniques that are larger than the new one (supersets of the unique)
-//      if (c.getBitSet().containsSubset(unique.getBitSet())) {
-//        prune.add(c);
-//      }
-//    }
-//    uniques.removeAll(prune);
-//    prune.clear();
-//    // Prune candidates
-//    for (Candidate c : candidates) {
-//      // Remove candidates that are smaller than the new unique (subsets of the unique)
-//      if (c.getBitSet().containsSubset(unique.getBitSet())) {
-//        prune.add(c);
-//      }
-//    }
-//    candidates.removeAll(prune);
-//    uniques.add(unique);
-//  }
 
   protected void initialize() throws InputGenerationException, AlgorithmConfigurationException {
     RelationalInput input = this.inputGenerator.generateNewCopy();
@@ -235,20 +143,21 @@ public class LighthouseFDAlgorithm {
   }
 
   protected void generateResults() {
+
     for (Candidate dependant : primitives) {
       ColumnCombinationBitset bitset = dependant.getBitSet();
       candidates.clear();
       candidates.addAll(primitives);
       candidates.remove(dependant);
-      mainLoop(dependant);
+      mainLoop(dependant, primitives);
     }
-    return results;
+    return;
   }
 
-  protected void emit(List<UniqueColumnCombination> results)
+  protected void emit(List<FunctionalDependency> results)
       throws CouldNotReceiveResultException, ColumnNameMismatchException {
-    for (UniqueColumnCombination ucc : results) {
-      this.resultReceiver.receiveResult(ucc);
+    for (FunctionalDependency fd : results) {
+      this.resultReceiver.receiveResult(fd);
     }
   }
 
