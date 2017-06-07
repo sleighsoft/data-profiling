@@ -1,0 +1,19 @@
++ Metadaten über die Spalten erheben
+  * #Unique
+  * #Distinct Groups
+  * (#Duplicates)
+
++ Pruning von Spalten die bereits Unique sind {'A' fällt raus}
+
++ Berechne Uniqueness aus n+1 Tupel Spaltenkombinationen [hier Score ausdenken] {2 Tupel Kombinationen}
+
++ Kandidaten nach "Uniqueness" sortieren
+
++ Höchsten Uniqueness Kandidaten wählen {DE}
+  1. Prüfen, ob Unique (samplen): Uniqueness verletzt [Validator bauen]
+    * Berechnung eines Scores (Uniqueness2), abwarten bis Schwankung nachlässt (noch ein wenig weiter samplen)
+    * Pärchen als nicht Unique markieren
+  2. Falls Unique: Validator läuft durch
+    * Pärchen und alle davon abhängigen Kombinationen prunen
+
++ Springe zu 'Berechne Uniqueness'
