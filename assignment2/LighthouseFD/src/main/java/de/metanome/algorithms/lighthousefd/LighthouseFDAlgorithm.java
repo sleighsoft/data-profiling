@@ -7,6 +7,7 @@ import de.metanome.algorithm_integration.AlgorithmConfigurationException;
 import de.metanome.algorithm_integration.AlgorithmExecutionException;
 import de.metanome.algorithm_integration.ColumnCombination;
 import de.metanome.algorithm_integration.ColumnIdentifier;
+import de.metanome.algorithm_integration.algorithm_types.FunctionalDependencyAlgorithm;
 import de.metanome.algorithm_integration.input.InputGenerationException;
 import de.metanome.algorithm_integration.input.InputIterationException;
 import de.metanome.algorithm_integration.input.RelationalInput;
@@ -28,7 +29,6 @@ public class LighthouseFDAlgorithm {
   protected List<String> columnNames;
 
   protected List<Candidate> primitives = new ArrayList<>();
-  // TODO: initialCapacity can be calculated based on input size
   protected List<Candidate> candidates = new ArrayList();
   protected List<FunctionalDependency> finalFDs = new ArrayList<>();
 
@@ -46,7 +46,7 @@ public class LighthouseFDAlgorithm {
       column_index++;
     }
     this.generateResults();
-    this.emit(finalFDs);
+    this.emit(minFDs);
   }
 
   /**
@@ -96,12 +96,16 @@ public class LighthouseFDAlgorithm {
       }
     }
     for(ColumnCombinationBitset minimalFD : minimalFDs) {
-      FunctionalDependency fd = new FunctionalDependency( minimalFD.createColumnCombination(relationName, columnNames),
-                                                          dependant.getBitSet().createColumnCombination(relationName, columnNames).getColumnIdentifiers().toArray(new ColumnIdentifier[]{})[0]);
+      FunctionalDependency fd = createFD(minimalFD, dependant.getBitSet());
       finalFDs.add(fd);
     }
 
 
+  }
+
+  protected FunctionalDependency createFD(ColumnCombinationBitset lhs, ColumnCombinationBitset rhs){
+    return new FunctionalDependency( lhs.createColumnCombination(relationName, columnNames),
+                              rhs.createColumnCombination(relationName, columnNames).getColumnIdentifiers().toArray(new ColumnIdentifier[]{})[0]);
   }
 
   protected boolean isFD(Candidate determinant, Candidate dependant){
@@ -111,6 +115,153 @@ public class LighthouseFDAlgorithm {
       return true;
     }
     else return false;
+  }
+
+  List<Candidate> PliStore = new ArrayList<>();
+  List<FunctionalDependency> minFDs = new ArrayList<>();
+
+  protected void newMainLoop(int columnCount){
+
+    List<RhsPlusSet> primitiveColumns = new ArrayList<>();
+    for(int i = 0; i < columnCount; i++){
+      ColumnCombinationBitset lhs = new ColumnCombinationBitset(i);
+      primitiveColumns.add(new RhsPlusSet(lhs, lhs.invert(columnCount)));
+    }
+    List<RhsPlusSet> thisLevel = new ArrayList<>();
+
+    thisLevel.addAll(primitiveColumns);
+
+    int level = 1;
+
+    while(!thisLevel.isEmpty()){
+      computeDependencies(thisLevel);
+      prune(thisLevel);
+      level++;
+      thisLevel = generateNextLevel(thisLevel, level);
+    }
+  }
+
+  protected PositionListIndex getPli(ColumnCombinationBitset columnBitset){
+    List<Integer> columns = columnBitset.getSetBits();
+    PositionListIndex Pli= primitives.get(columns.get(0).intValue()).getPli();
+    for(int i : columns.subList(1, columns.size())){
+      Pli = Pli.intersect(primitives.get(i).getPli());
+    }
+    return Pli;
+  }
+
+  protected void buildNextLevelPlis(){
+
+  }
+
+  protected List<RhsPlusSet> generateNextLevel(List<RhsPlusSet> currentLevel, int level){
+    List<RhsPlusSet> nextLevel = new ArrayList<>();
+    ColumnCombinationBitset currentPrefix = new ColumnCombinationBitset();
+    List<RhsPlusSet> currentBlock = new ArrayList<>();
+    for(RhsPlusSet element : currentLevel){
+      // Check whether the elements are in the same prefix set
+      ColumnCombinationBitset columns = element.getLhs();
+      // TODO: correctly find the prefix (though this seems to work)
+      if(columns.minus(currentPrefix).getSetBits().size() == 1){
+        // found an element in the Block
+        currentBlock.add(element);
+      }
+      else{
+        // take care of closing the block
+        int i = 0;
+        for(RhsPlusSet base : currentBlock){
+          i++;
+          for(RhsPlusSet refine : currentBlock.subList(i, currentBlock.size())){
+
+            ColumnCombinationBitset lhs = base.getLhs().union(refine.getLhs());
+            ColumnCombinationBitset rhs = base.getCandidates().intersect(refine.getCandidates());
+
+            int expected_furtherRefine = lhs.getSetBits().size();
+            for(RhsPlusSet further_refine : currentLevel){
+              if(further_refine.getLhs().isProperSubsetOf(lhs)){
+                rhs = rhs.intersect(further_refine.getCandidates().intersect(rhs));
+                expected_furtherRefine--;
+              }
+            }
+            if(expected_furtherRefine > 0){
+              // This candidate was pruned earlier anyways
+              continue;
+            }
+            if(expected_furtherRefine == 0) {
+              nextLevel.add(new RhsPlusSet(lhs, rhs));
+            }
+            else {
+              System.out.println("uh, oh, this should never happen!");
+            }
+          }
+        }
+        // open the next block
+        currentBlock.clear();
+        currentPrefix = new ColumnCombinationBitset(columns.getSetBits().subList(0, level-1));
+      }
+    }
+
+    buildNextLevelPlis();
+
+    return nextLevel;
+
+
+    // Find the blocks with elements with only one differing lhs
+    // Assume the blocks are ordered
+    // Iterate over the array, keeping the current prefix and filling the elements into a list
+    // this list is a block
+    // for each block:
+    //  for each pair of two distinct elements in the block:
+    //    union lhs bitsets
+    //    check whether there is a completely pruned subset
+    //    for that: check whether there are enough direct subsets in the list, refine the rhs with each found subset
+    // build PLIs for this level
+  }
+
+  protected void computeDependencies(List<RhsPlusSet> thisLevel){
+    for(RhsPlusSet base : thisLevel){
+      ColumnCombinationBitset candidates = base.getCandidates();
+      ColumnCombinationBitset toPrune = new ColumnCombinationBitset();
+      List<ColumnCombinationBitset> keepList;
+      for(ColumnCombinationBitset rhs : candidates.getContainedOneColumnCombinations()){
+        // This might be wrong or a big speedup
+        /*if(rhs.isSubsetOf(toPrune)){
+          continue;
+        }*/
+
+        ColumnCombinationBitset lhs = base.getLhs().minus(rhs);
+
+
+        PositionListIndex lhsPli = getPli(lhs);
+        PositionListIndex combinedPli = getPli(lhs.union(rhs));
+        if(lhsPli.size() == combinedPli.size()){
+          minFDs.add(createFD(lhs, rhs));
+          toPrune = toPrune.union(rhs);
+          toPrune = toPrune.union(lhs.invert(columnNames.size()));
+        }
+      }
+
+      base.setCandidates(base.getCandidates().union(toPrune.invert(columnNames.size())));
+      // for each right hand column
+      // test whether the dependency is valid (How do address get the needed PLIs)?
+      //  if valid:
+      //    save as minimal FD
+      //    remove right hand side from RhsPlusSet (prunelist)
+      //    keep only lhs on rhs (doable once)
+
+    }
+  }
+
+  protected void prune(List<RhsPlusSet> thisLevel) {
+    List<RhsPlusSet> toPrune = new ArrayList<>();
+    for(RhsPlusSet set : thisLevel){
+      if(set.getCandidates().isEmpty()){
+        toPrune.add(set);
+      }
+      // Superkey pruning (complicated, so later)
+
+    }
+    thisLevel.removeAll(toPrune);
   }
 
   protected void initialize() throws InputGenerationException, AlgorithmConfigurationException {
@@ -144,13 +295,14 @@ public class LighthouseFDAlgorithm {
 
   protected void generateResults() {
 
-    for (Candidate dependant : primitives) {
-      ColumnCombinationBitset bitset = dependant.getBitSet();
-      candidates.clear();
-      candidates.addAll(primitives);
-      candidates.remove(dependant);
-      mainLoop(dependant, primitives);
-    }
+    newMainLoop(columnNames.size());
+//    for (Candidate dependant : primitives) {
+//      ColumnCombinationBitset bitset = dependant.getBitSet();
+//      candidates.clear();
+//      candidates.addAll(primitives);
+//      candidates.remove(dependant);
+//      mainLoop(dependant, primitives);
+//    }
     return;
   }
 
