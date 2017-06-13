@@ -1,10 +1,10 @@
-package de.metanome.algorithms.SuperUCC;
+package de.metanome.algorithms.lighthousefd;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SuperUCCTest {
+public class LighthouseFDTest {
 
   @Before
   public void setUp() throws Exception {
