@@ -118,8 +118,6 @@ public class LighthouseFDAlgorithm {
 
     buildNextLevelPlis();
 
-    System.out.println("the next level has size: " + nextLevel.size());
-
     return nextLevel;
 
 
