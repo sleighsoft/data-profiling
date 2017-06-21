@@ -1,33 +1,34 @@
-package de.metanome.algorithms.lighthousefd;
+package de.metanome.algorithms.lighthouseind;
 
-import de.metanome.algorithm_helper.data_structures.ColumnCombinationBitset;
-import de.metanome.algorithm_helper.data_structures.PositionListIndex;
+import de.metanome.algorithm_integration.ColumnIdentifier;
+import de.metanome.algorithm_integration.ColumnPermutation;
 
-public class Candidate {
-  private ColumnCombinationBitset bitSet;
-  private PositionListIndex pli;
-  private int lastColumn;
+import java.util.List;
 
-  public Candidate(PositionListIndex pli, int column) {
-    this.pli = pli;
-    this.bitSet = new ColumnCombinationBitset(column);
-    this.lastColumn = column;
-  }
+/**
+ * Created by florian on 6/21/17.
+ */
+public class Candidate implements Comparable<Candidate>{
+    // TODO: datatype
 
-  public Candidate(PositionListIndex pli, ColumnCombinationBitset bitSet, int lastColumn) {
-    this.pli = pli;
-    this.bitSet = bitSet;
-  }
+    List<String> values;
+    int distinct;
+    ColumnPermutation perm;
 
-  public int getLastColumn(){
-    return lastColumn;
-  }
+    Candidate(List<String> values, String relationIdentifier, String columnIdentifier){
+        this.values = values;
+        this.distinct = values.size();
+        perm = new ColumnPermutation(new ColumnIdentifier(relationIdentifier, columnIdentifier));
+    }
 
-  public ColumnCombinationBitset getBitSet() {
-    return bitSet;
-  }
+    public int getDistinct(){return this.distinct;}
 
-  public PositionListIndex getPli() {
-    return pli;
-  }
+    public List<String> getValues(){return this.values;}
+
+    @Override
+    public int compareTo(Candidate other) {
+        return this.distinct - other.getDistinct();
+    }
+
+    public ColumnPermutation getPerm(){return perm;}
 }
