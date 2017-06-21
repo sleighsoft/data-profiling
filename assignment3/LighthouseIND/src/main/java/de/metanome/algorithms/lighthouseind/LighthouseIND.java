@@ -8,11 +8,11 @@ import de.metanome.algorithm_integration.algorithm_types.*;
 import de.metanome.algorithm_integration.configuration.ConfigurationRequirement;
 import de.metanome.algorithm_integration.configuration.ConfigurationRequirementRelationalInput;
 import de.metanome.algorithm_integration.input.RelationalInputGenerator;
-import de.metanome.algorithm_integration.result_receiver.FunctionalDependencyResultReceiver;
+import de.metanome.algorithm_integration.result_receiver.InclusionDependencyResultReceiver;
 import de.metanome.algorithm_integration.result_receiver.UniqueColumnCombinationResultReceiver;
 
 public class LighthouseIND extends LighthouseINDAlgorithm
-    implements FunctionalDependencyAlgorithm, // Defines the type of the algorithm, i.e., the result type, for instance, FunctionalDependencyAlgorithm or InclusionDependencyAlgorithm; implementing multiple types is possible
+    implements InclusionDependencyAlgorithm, // Defines the type of the algorithm, i.e., the result type, for instance, InclusionDependencyAlgorithm or InclusionDependencyAlgorithm; implementing multiple types is possible
     RelationalInputParameterAlgorithm {
 
   public enum Identifier {
@@ -33,7 +33,8 @@ public class LighthouseIND extends LighthouseINDAlgorithm
   @Override
   public ArrayList<ConfigurationRequirement<?>> getConfigurationRequirements() { // Tells Metanome which and how many parameters the algorithm needs
     ArrayList<ConfigurationRequirement<?>> conf = new ArrayList<>();
-    conf.add(new ConfigurationRequirementRelationalInput(LighthouseIND.Identifier.INPUT_GENERATOR.name()));
+    conf.add(new ConfigurationRequirementRelationalInput(LighthouseIND.Identifier.INPUT_GENERATOR.name(), 
+      ConfigurationRequirement.ARBITRARY_NUMBER_OF_VALUES));
     return conf;
   }
 
@@ -42,12 +43,12 @@ public class LighthouseIND extends LighthouseINDAlgorithm
       throws AlgorithmConfigurationException {
     if (!LighthouseIND.Identifier.INPUT_GENERATOR.name().equals(identifier))
       this.handleUnknownConfiguration(identifier, values);
-    this.inputGenerator = values[0];
+    this.inputGenerators = values;
   }
 
   @Override
-  public void setResultReceiver(FunctionalDependencyResultReceiver functionalDependencyResultReceiver) {
-    this.resultReceiver = functionalDependencyResultReceiver;
+  public void setResultReceiver(InclusionDependencyResultReceiver inclusionDependencyResultReceiver) {
+    this.resultReceiver = inclusionDependencyResultReceiver;
   } // Defines the input type of the algorithm; relational input is any relational input from files or databases; more specific input specifications are possible
 
   @Override
