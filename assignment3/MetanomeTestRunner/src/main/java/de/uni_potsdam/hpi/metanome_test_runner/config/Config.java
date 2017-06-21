@@ -5,7 +5,7 @@ import java.io.File;
 public class Config {
 
   public enum Algorithm {
-    LighthouseFD
+    LighthouseIND
   }
 
   public enum Dataset {
@@ -69,7 +69,7 @@ public class Config {
   }
 
   public Config() {
-    this(Config.Algorithm.LighthouseFD, Config.Dataset.SYMBOLS);
+    this(Config.Algorithm.LighthouseIND, Config.Dataset.SYMBOLS);
   }
 
   public Config(Config.Algorithm algorithm, Config.Dataset dataset) {

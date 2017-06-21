@@ -53,26 +53,38 @@ public class LighthouseINDAlgorithm {
     List<String> leftValues = lhs.getValues();
     List<String> rightValues = rhs.getValues();
 
-    String leftValue = leftValues.get(leftIndex);
-    String rightValue = rightValues.get(rightIndex);
+    String leftValue;
+    String rightValue;
 
-    while(leftIndex < leftValues.size()){
-      int comparison = leftValue.compareTo(rightValue);
+    // Assumption: left is dependant, right is referenced
 
-      if(comparison < 1)
-
+    while(leftIndex < leftValues.size() && rightIndex < rightValues.size()){
+      leftValue = leftValues.get(leftIndex);
+      rightValue = rightValues.get(rightIndex);
 
       switch(signum(leftValue.compareTo(rightValue))){
         case -1:
-          rightIndex++;
-          break;
+          // left < right
+          // left contains a value that is not contained in right
+          // => error
+          return;
         case 0:
-          rightIndex++;
+          // left == right
+          // everything okay, step both values
           leftIndex++;
+          rightIndex++;
           break;
         case 1:
-          return;
+          // left > right
+          // right contains a value that is not contained in left
+          // skip this value in right, keep left pinned
+          rightIndex++;
+          break;
       }
+    }
+
+    if(rightIndex == rightValues.size()){
+      return;
     }
 
     finalINDs.add(new InclusionDependency(lhs.getPerm(), rhs.getPerm()));
@@ -92,11 +104,23 @@ public class LighthouseINDAlgorithm {
 
       String relationName = input.relationName();
       List<String> columnNames = input.columnNames();
+      List<List<String>> columns = new ArrayList<>();
 
-      int i = 0;
+      for(int i = 0; i < columnNames.size(); i++){
+        columns.add(new ArrayList<String>());
+      }
+
       while (input.hasNext()) {
-        candidates.add(createCandidate(input.next(), relationName, columnNames.get(i)));
-        i++;
+        List<String> columnValues = input.next();
+        int i = 0;
+        for(String value : columnValues){
+          columns.get(i).add(value);
+          i++;
+        }
+      }
+
+      for(int i = 0; i < columnNames.size(); i++) {
+        candidates.add(new Candidate(columns.get(i), relationName, columnNames.get(i)));
       }
     }
 

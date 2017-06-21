@@ -8,8 +8,9 @@ import de.metanome.algorithm_integration.input.InputGenerationException;
 import de.metanome.algorithm_integration.input.RelationalInput;
 import de.metanome.algorithm_integration.input.RelationalInputGenerator;
 import de.metanome.algorithm_integration.results.FunctionalDependency;
+import de.metanome.algorithm_integration.results.InclusionDependency;
 import de.metanome.algorithm_integration.results.Result;
-import de.metanome.algorithms.lighthousefd.LighthouseFD;
+import de.metanome.algorithms.lighthouseind.LighthouseIND;
 import de.metanome.backend.input.file.DefaultFileInputGenerator;
 import de.metanome.backend.result_receiver.ResultCache;
 import de.uni_potsdam.hpi.metanome_test_runner.config.Config;
@@ -32,8 +33,8 @@ public class MetanomeMock {
 
       ResultCache resultReceiver = new ResultCache("MetanomeMock", getAcceptedColumns(inputGenerator));
 
-      LighthouseFD algorithm = new LighthouseFD();
-      algorithm.setRelationalInputConfigurationValue(LighthouseFD.Identifier.INPUT_GENERATOR.name(), inputGenerator);
+      LighthouseIND algorithm = new LighthouseIND();
+      algorithm.setRelationalInputConfigurationValue(LighthouseIND.Identifier.INPUT_GENERATOR.name(), inputGenerator);
       algorithm.setResultReceiver(resultReceiver);
 
       long runtime = System.currentTimeMillis();
@@ -58,8 +59,8 @@ public class MetanomeMock {
 
       ResultCache resultReceiver = new ResultCache("MetanomeMock", getAcceptedColumns(inputGenerator));
 
-      LighthouseFD algorithm = new LighthouseFD();
-      algorithm.setRelationalInputConfigurationValue(LighthouseFD.Identifier.INPUT_GENERATOR.name(), inputGenerator);
+      LighthouseIND algorithm = new LighthouseIND();
+      algorithm.setRelationalInputConfigurationValue(LighthouseIND.Identifier.INPUT_GENERATOR.name(), inputGenerator);
       algorithm.setResultReceiver(resultReceiver);
 
       long runtime = System.currentTimeMillis();
@@ -101,8 +102,8 @@ public class MetanomeMock {
   private static String format(List<Result> results) {
     StringBuilder builder = new StringBuilder();
     for (Result result : results) {
-      FunctionalDependency fd = (FunctionalDependency) result;
-      builder.append(fd.toString() + "\r\n");
+      InclusionDependency id = (InclusionDependency) result;
+      builder.append(id.toString() + "\r\n");
     }
     return builder.toString();
   }

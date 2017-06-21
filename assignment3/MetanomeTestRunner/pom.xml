@@ -30,8 +30,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>de.metanome.algorithms.lighthousefd</groupId>
-            <artifactId>LighthouseFD</artifactId>
+            <groupId>de.metanome.algorithms.lighthouseind</groupId>
+            <artifactId>LighthouseIND</artifactId>
             <version>${metanome.version}</version>
         </dependency>
 
