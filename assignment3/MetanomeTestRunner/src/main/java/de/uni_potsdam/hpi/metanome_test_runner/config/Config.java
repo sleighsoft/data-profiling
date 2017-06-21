@@ -9,7 +9,7 @@ public class Config {
   }
 
   public enum Dataset {
-    PLANETS, SYMBOLS, SCIENCE, SATELLITES, GAME, ASTRONOMICAL, ABALONE, ADULT, BALANCE, BREAST, BRIDGES, CHESS, ECHODIAGRAM, FLIGHT, HEPATITIS, HORSE, IRIS, LETTER, NURSERY, PETS, NCVOTER_1K, UNIPROD_1K, UCC11, UCC011, UCC101, UCC111, UCCALL, UCCNO, UCCTWO, UCCONE, UCCONECOLUMNONE, PRUNETOOMUCH, COLUMNS20, NULLVALUES
+    TESTER, PLANETS, SYMBOLS, SCIENCE, SATELLITES, GAME, ASTRONOMICAL, ABALONE, ADULT, BALANCE, BREAST, BRIDGES, CHESS, ECHODIAGRAM, FLIGHT, HEPATITIS, HORSE, IRIS, LETTER, NURSERY, PETS, NCVOTER_1K, UNIPROD_1K, UCC11, UCC011, UCC101, UCC111, UCCALL, UCCNO, UCCTWO, UCCONE, UCCONECOLUMNONE, PRUNETOOMUCH, COLUMNS20, NULLVALUES
   }
 
   public Config.Algorithm algorithm;
@@ -89,6 +89,11 @@ public class Config {
     switch (dataset) {
       case PLANETS:
         this.inputDatasetName = "WDC_planets";
+        this.inputFileSeparator = ',';
+        this.inputFileHasHeader = true;
+        break;
+      case TESTER:
+        this.inputDatasetName = "tester";
         this.inputFileSeparator = ',';
         this.inputFileHasHeader = true;
         break;

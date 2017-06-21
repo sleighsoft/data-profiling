@@ -32,15 +32,10 @@ public class LighthouseINDAlgorithm {
   }
 
   protected void generateResults() {
-    ListIterator<Candidate> lhsIt = candidates.listIterator();
-    while(lhsIt.hasNext()){
-      Candidate lhs = lhsIt.next();
-
-      ListIterator<Candidate> rhsIt = candidates.listIterator(lhsIt.nextIndex());
-
-      while(rhsIt.hasNext()){
-        Candidate rhs = rhsIt.next();
-
+    for(int lhsIndex = 0; lhsIndex < candidates.size() - 1; lhsIndex++) {
+      Candidate lhs = candidates.get(lhsIndex);
+      for(int rhsIndex = lhsIndex+1; rhsIndex < candidates.size(); rhsIndex++) {
+        Candidate rhs = candidates.get(rhsIndex);
         checkCombination(lhs, rhs);
       }
     }
@@ -83,7 +78,7 @@ public class LighthouseINDAlgorithm {
       }
     }
 
-    if(rightIndex == rightValues.size()){
+    if(rightIndex == rightValues.size() && leftIndex < leftValues.size()){
       return;
     }
 
@@ -120,14 +115,14 @@ public class LighthouseINDAlgorithm {
       }
 
       for(int i = 0; i < columnNames.size(); i++) {
-        candidates.add(new Candidate(columns.get(i), relationName, columnNames.get(i)));
+        candidates.add(createCandidate(columns.get(i), relationName, columnNames.get(i)));
       }
     }
 
     java.util.Collections.sort (candidates, new Comparator<Candidate>() {
       public int compare(Candidate o1, Candidate o2) {
           // Intentional: Reverse order for this demo
-          return o2.compareTo(o1);
+          return o1.compareTo(o2);
       }
     });
   }
