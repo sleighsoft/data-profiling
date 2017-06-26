@@ -25,16 +25,22 @@ public class MetanomeMock {
 
   public static void execute(Config conf) {
     try {
-      RelationalInputGenerator inputGenerator = new DefaultFileInputGenerator(new ConfigurationSettingFileInput(
-          conf.inputFolderPath + conf.inputDatasetName + conf.inputFileEnding, true, conf.inputFileSeparator,
-          conf.inputFileQuotechar, conf.inputFileEscape, conf.inputFileStrictQuotes,
-          conf.inputFileIgnoreLeadingWhiteSpace, conf.inputFileSkipLines, conf.inputFileHasHeader,
-          conf.inputFileSkipDifferingLines, conf.inputFileNullString));
+      List<RelationalInputGenerator> inputGenerators = new ArrayList<>();
+      for( String datasetName : conf.inputDatasetNames){
+        RelationalInputGenerator inputGenerator = new DefaultFileInputGenerator(new ConfigurationSettingFileInput(
+                conf.inputFolderPath + datasetName + conf.inputFileEnding, true, conf.inputFileSeparator,
+                conf.inputFileQuotechar, conf.inputFileEscape, conf.inputFileStrictQuotes,
+                conf.inputFileIgnoreLeadingWhiteSpace, conf.inputFileSkipLines, conf.inputFileHasHeader,
+                conf.inputFileSkipDifferingLines, conf.inputFileNullString));
 
-      ResultCache resultReceiver = new ResultCache("MetanomeMock", getAcceptedColumns(inputGenerator));
+        inputGenerators.add(inputGenerator);
+      }
+
+      ResultCache resultReceiver = new ResultCache("MetanomeMock", getAcceptedColumns(inputGenerators));
 
       LighthouseIND algorithm = new LighthouseIND();
-      algorithm.setRelationalInputConfigurationValue(LighthouseIND.Identifier.INPUT_GENERATOR.name(), inputGenerator);
+      algorithm.setRelationalInputConfigurationValue(LighthouseIND.Identifier.INPUT_GENERATOR.name(),
+              inputGenerators.toArray(new RelationalInputGenerator[inputGenerators.size()]));
       algorithm.setResultReceiver(resultReceiver);
 
       long runtime = System.currentTimeMillis();
@@ -49,6 +55,7 @@ public class MetanomeMock {
     }
   }
 
+  /*
   public static ResultCache executeWithResult(Config conf) {
     try {
       RelationalInputGenerator inputGenerator = new DefaultFileInputGenerator(new ConfigurationSettingFileInput(
@@ -74,15 +81,17 @@ public class MetanomeMock {
       e.printStackTrace();
     }
     return null;
-  }
+  } */
 
-  private static List<ColumnIdentifier> getAcceptedColumns(RelationalInputGenerator relationalInputGenerator)
+  private static List<ColumnIdentifier> getAcceptedColumns(List<RelationalInputGenerator> relationalInputGenerators)
       throws InputGenerationException, AlgorithmConfigurationException {
     List<ColumnIdentifier> acceptedColumns = new ArrayList<>();
-    RelationalInput relationalInput = relationalInputGenerator.generateNewCopy();
-    String tableName = relationalInput.relationName();
-    for (String columnName : relationalInput.columnNames())
-      acceptedColumns.add(new ColumnIdentifier(tableName, columnName));
+    for(RelationalInputGenerator generator : relationalInputGenerators) {
+      RelationalInput relationalInput = generator.generateNewCopy();
+      String tableName = relationalInput.relationName();
+      for (String columnName : relationalInput.columnNames())
+        acceptedColumns.add(new ColumnIdentifier(tableName, columnName));
+    }
     return acceptedColumns;
   }
 

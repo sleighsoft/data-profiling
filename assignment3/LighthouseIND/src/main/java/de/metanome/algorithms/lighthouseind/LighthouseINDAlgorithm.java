@@ -109,8 +109,10 @@ public class LighthouseINDAlgorithm {
         List<String> columnValues = input.next();
         int i = 0;
         for(String value : columnValues){
-          columns.get(i).add(value);
-          i++;
+          if(value != null) {
+            columns.get(i).add(value);
+            i++;
+          }
         }
       }
 
