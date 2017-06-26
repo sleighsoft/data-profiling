@@ -11,7 +11,7 @@ public class Config {
   }
 
   public enum Dataset {
-    TESTER, PLANETS, SYMBOLS, SCIENCE, SATELLITES, GAME, ASTRONOMICAL, ABALONE, ADULT, BALANCE, BREAST, BRIDGES, CHESS, ECHODIAGRAM, FLIGHT, HEPATITIS, HORSE, IRIS, LETTER, NURSERY, PETS, NCVOTER_1K, UNIPROD_1K, UCC11, UCC011, UCC101, UCC111, UCCALL, UCCNO, UCCTWO, UCCONE, UCCONECOLUMNONE, PRUNETOOMUCH, COLUMNS20, NULLVALUES
+    TESTER, PLANETS, SYMBOLS, SCIENCE, SATELLITES, GAME, ASTRONOMICAL, ABALONE, ADULT, BALANCE, BREAST, BRIDGES, CHESS, ECHODIAGRAM, FLIGHT, HEPATITIS, HORSE, IRIS, LETTER, NURSERY, PETS, NCVOTER_1K, UNIPROD_1K, UCC11, UCC011, UCC101, UCC111, UCCALL, UCCNO, UCCTWO, UCCONE, UCCONECOLUMNONE, PRUNETOOMUCH, COLUMNS20, NULLVALUES, LETTER_NUMBER_AB, LETTER_NUMBER_ABCD
   }
 
   public Config.Algorithm algorithm;
@@ -277,6 +277,18 @@ public class Config {
           break;
         case NULLVALUES:
           this.inputDatasetName = "null_values";
+          this.inputFileSeparator = ',';
+          this.inputFileHasHeader = true;
+          this.inputFolderPath = "data" + File.separator + "test" + File.separator;
+          break;
+        case LETTER_NUMBER_AB:
+          this.inputDatasetName = "Letter(ab)-Number(1245)";
+          this.inputFileSeparator = ',';
+          this.inputFileHasHeader = true;
+          this.inputFolderPath = "data" + File.separator + "test" + File.separator;
+          break;
+        case LETTER_NUMBER_ABCD:
+          this.inputDatasetName = "Letter(abcd)-Number(1245)";
           this.inputFileSeparator = ',';
           this.inputFileHasHeader = true;
           this.inputFolderPath = "data" + File.separator + "test" + File.separator;

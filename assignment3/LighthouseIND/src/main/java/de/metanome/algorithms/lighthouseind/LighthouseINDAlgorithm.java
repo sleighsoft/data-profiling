@@ -83,6 +83,8 @@ public class LighthouseINDAlgorithm {
     }
 
     finalINDs.add(new InclusionDependency(lhs.getPerm(), rhs.getPerm()));
+    if(lhs.getDistinct() == rhs.getDistinct())
+      finalINDs.add(new InclusionDependency(rhs.getPerm(), lhs.getPerm()));
   }
   
   protected void initialize() throws InputGenerationException, AlgorithmConfigurationException, InputIterationException {
