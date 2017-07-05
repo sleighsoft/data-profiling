@@ -54,9 +54,18 @@ public class LighthouseINDAlgorithm {
     // Assumption: left is dependant, right is referenced
 
     while(leftIndex < leftValues.size() && rightIndex < rightValues.size()){
+
       leftValue = leftValues.get(leftIndex);
       rightValue = rightValues.get(rightIndex);
 
+      if(leftValue == null){
+        leftIndex++;
+        break;
+      }
+      if(rightValue == null){
+        rightIndex++;
+        break;
+      }
       switch(signum(leftValue.compareTo(rightValue))){
         case -1:
           // left < right
@@ -97,6 +106,7 @@ public class LighthouseINDAlgorithm {
      */
 
     for(RelationalInputGenerator inputGenerator : inputGenerators) {
+
       RelationalInput input = inputGenerator.generateNewCopy();
 
       String relationName = input.relationName();
@@ -111,10 +121,8 @@ public class LighthouseINDAlgorithm {
         List<String> columnValues = input.next();
         int i = 0;
         for(String value : columnValues){
-          if(value != null) {
-            columns.get(i).add(value);
-            i++;
-          }
+          columns.get(i).add(value);
+          i++;
         }
       }
 
@@ -131,9 +139,11 @@ public class LighthouseINDAlgorithm {
     });
   }
 
+
   protected Candidate createCandidate(List<String> column, String relationName, String columnName) {
     Set<String> uniques = new HashSet<>(column);
     column = new ArrayList<>(uniques);
+
     java.util.Collections.sort(column);
     return new Candidate(column, relationName, columnName);
   }

@@ -71,7 +71,7 @@ public class Config {
   }
 
   public Config() {
-    this(Config.Algorithm.LighthouseIND, new ArrayList<Dataset>());
+    this(Algorithm.LighthouseIND, new ArrayList<Dataset>());
     List<Config.Dataset> tmp = new ArrayList<Config.Dataset>();
     tmp.add(Dataset.SYMBOLS);
     this.setDataset(tmp);
