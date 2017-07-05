@@ -58,14 +58,14 @@ public class LighthouseINDAlgorithm {
       leftValue = leftValues.get(leftIndex);
       rightValue = rightValues.get(rightIndex);
 
-      if(leftValue == null){
+     /* if(leftValue == null){
         leftIndex++;
         break;
       }
       if(rightValue == null){
         rightIndex++;
         break;
-      }
+      }*/
       switch(signum(leftValue.compareTo(rightValue))){
         case -1:
           // left < right
@@ -139,12 +139,20 @@ public class LighthouseINDAlgorithm {
     });
   }
 
+  protected List<String> cleanColumn(List<String> column) {
+    for (String distinctValue : column) {
+      if(distinctValue == null) {
+        column.remove(distinctValue);
+        return column;
+      }
+    }
+    return column;
+  }
 
   protected Candidate createCandidate(List<String> column, String relationName, String columnName) {
     Set<String> uniques = new HashSet<>(column);
     column = new ArrayList<>(uniques);
-
-    java.util.Collections.sort(column);
+    java.util.Collections.sort(cleanColumn(column));
     return new Candidate(column, relationName, columnName);
   }
 
